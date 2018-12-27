@@ -58,7 +58,7 @@ describe('chai-bn', function () {
     });
   }
 
-  describe.only('equal/equals/eq', function () {
+  describe('equal/equals/eq', function () {
     const [tester, notTester] = testerGenerator(['equal', 'equals', 'eq']);
 
     it('asserts equality', function () {
@@ -104,10 +104,10 @@ describe('chai-bn', function () {
     argTypeChecker(tester, notTester);
   });
 
-  describe.only('above/gt/greaterThan', function () {
+  describe('above/gt/greaterThan', function () {
     const [tester, notTester] = testerGenerator(['above', 'gt', 'greaterThan']);
 
-    it('asserts greatness', function () {
+    it('asserts aboveness', function () {
       const test_cases = [
         [new BN('15'), '10'],
         [new BN('15'), new BN('10')],
@@ -133,7 +133,85 @@ describe('chai-bn', function () {
       });
     });
 
-    it('asserts ungreatness', function () {
+    it('asserts unaboveness', function () {
+      const test_cases = [
+        [new BN('10'), '15'],
+        [new BN('10'), new BN('15')],
+
+        [new BN('-10'), '15'],
+        [new BN('-10'), new BN('15')],
+
+        [new BN('-15'), '-10'],
+        [new BN('-15'), new BN('-10')],
+
+        [new BN('15'), '15'],
+        [new BN('15'), new BN('15')],
+
+        [new BN('-15'), '-15'],
+        [new BN('-15'), new BN('-15')],
+
+        [new BN('123456789123'), '123456789123456789'],
+        [new BN('123456789123'), new BN('123456789123456789')],
+
+        [new BN('-123456789123'), '123456789123456789'],
+        [new BN('-123456789123'), new BN('123456789123456789')],
+
+        [new BN('-123456789123456789'), '-123456789123'],
+        [new BN('-123456789123456789'), new BN('-123456789123')],
+      ];
+
+      test_cases.forEach(([a, b]) => {
+        notTester(a, b);
+      });
+    });
+
+    argTypeChecker(tester, notTester);
+  });
+
+  describe('least/gte', function () {
+    const [tester, notTester] = testerGenerator(['gte']);
+
+    it('asserts at least', function () {
+      const test_cases = [
+        [new BN('15'), '10'],
+        [new BN('15'), new BN('10')],
+
+        [new BN('15'), '-10'],
+        [new BN('15'), new BN('-10')],
+
+        [new BN('-10'), '-15'],
+        [new BN('-10'), new BN('-15')],
+
+        [new BN('15'), '15'],
+        [new BN('15'), new BN('15')],
+
+        [new BN('-15'), '-15'],
+        [new BN('-15'), new BN('-15')],
+
+        [new BN('123456789123456789'), '123456789123'],
+        [new BN('123456789123456789'), new BN('123456789123')],
+
+        [new BN('123456789123456789'), '-123456789123'],
+        [new BN('123456789123456789'), new BN('-123456789123')],
+
+        [new BN('-123456789123'), '-123456789123456789'],
+        [new BN('-123456789123'), new BN('-123456789123456789')],
+
+        [new BN('123456789123456789'), '123456789123456789'],
+        [new BN('123456789123456789'), new BN('123456789123456789')],
+
+        [new BN('-123456789123456789'), '-123456789123456789'],
+        [new BN('-123456789123456789'), new BN('-123456789123456789')],
+      ];
+
+      test_cases.forEach(([a, b]) => {
+        tester(a, b);
+        a.should.be.bignumber.at.least(b);
+        expect(a).to.be.bignumber.at.least(b);
+      });
+    });
+
+    it('asserts not at least', function () {
       const test_cases = [
         [new BN('10'), '15'],
         [new BN('10'), new BN('15')],
@@ -156,387 +234,150 @@ describe('chai-bn', function () {
 
       test_cases.forEach(([a, b]) => {
         notTester(a, b);
+        a.should.not.be.bignumber.at.least(b);
+        expect(a).to.not.be.bignumber.at.least(b);
       });
     });
 
     argTypeChecker(tester, notTester);
   });
 
-  describe('least/gte', function () {
-    it('should be greater than or equal to', function () {
-      const test_cases = [
-        [15, 10],
-        ['15', 10],
-        [15, '10'],
-        ['15', '10'],
-        [10.5, 10.5],
-        ['10.5', 10.5],
-        [10.6, '10.5'],
-        ['10.6', '10.5'],
-        ['1.000000000000000002', '1.000000000000000001'],
-        [new BN('1.000000000000000002'), '1.000000000000000001'],
-        ['1.000000000000000001', new BN('1.000000000000000001')],
-        [new BN('1.000000000000000002'), new BN('1.000000000000000001')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.at.least(b);
-      }
-    });
-
-    it('should be greater than or equal to when rounded', function () {
-      const test_cases = [
-        [10, 10],
-        ['100.25356140', 100.25355912],
-        [10, new BN('10.000000000000000001')],
-        [15, 10],
-        ['15.4279', 15.4274],
-        [new BN('1.999999999999999999'), 1.999449]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.at.least(b, 3);
-      }
-    });
-
-    it('should be greater than or equal to when rounded with specific rounding mode', function () {
-      const test_cases = [
-        ['100.5', 100.499],
-        [1.995, new BN('1.999999999999999999')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.at.least(b, 2, BN.ROUND_HALF_UP);
-      }
-    });
-
-    it('should not be greater than or equal to', function () {
-      const test_cases = [
-        [10, 15],
-        ['10', 15],
-        [10, '15'],
-        ['10', '15'],
-        [10.5, 10.6],
-        ['10.5', 10.6],
-        [10.5, '10.6'],
-        ['10.5', '10.6'],
-        ['1.000000000000000001', '1.000000000000000002'],
-        [new BN('1.000000000000000001'), '1.000000000000000002'],
-        ['1.000000000000000001', new BN('1.000000000000000002')],
-        [new BN('1.000000000000000001'), new BN('1.000000000000000002')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.not.be.bignumber.at.least(b);
-      }
-    });
-
-    it('should fail if arguments are not string, number or BN', function () {
-      const test_cases = [
-        [{}, 1],
-        [1, {}],
-        [function () {}, []]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        (function () {
-          a.should.not.be.bignumber.at.least(b);
-        }).should.throw(matchInvalidError);
-      }
-    });
-  });
-
   describe('below/lt/lessThan', function () {
-    it('should be less than', function () {
+    const [tester, notTester] = testerGenerator(['below', 'lt', 'lessThan']);
+
+    it('asserts belowness', function () {
       const test_cases = [
-        [10, 15],
-        ['10', 15],
-        [10, '15'],
-        ['10', '15'],
-        [10.5, 10.6],
-        ['10.5', 10.6],
-        [10.5, '10.6'],
-        ['10.5', '10.6'],
-        ['1.000000000000000001', '1.000000000000000002'],
-        [new BN('1.000000000000000001'), '1.000000000000000002'],
-        ['1.000000000000000001', new BN('1.000000000000000002')],
-        [new BN('1.000000000000000001'), new BN('1.000000000000000002')]
+        [new BN('10'), '15'],
+        [new BN('10'), new BN('15')],
+
+        [new BN('-10'), '15'],
+        [new BN('-10'), new BN('15')],
+
+        [new BN('-15'), '-10'],
+        [new BN('-15'), new BN('-10')],
+
+        [new BN('123456789123'), '123456789123456789'],
+        [new BN('123456789123'), new BN('123456789123456789')],
+
+        [new BN('-123456789123'), '123456789123456789'],
+        [new BN('-123456789123'), new BN('123456789123456789')],
+
+        [new BN('-123456789123456789'), '-123456789123'],
+        [new BN('-123456789123456789'), new BN('-123456789123')],
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.lessThan(b);
-      }
+      test_cases.forEach(([a, b]) => {
+        tester(a, b);
+      });
     });
 
-    it('should be less than when rounded', function () {
+    it('asserts unbelowness', function () {
       const test_cases = [
-        [10, 15],
-        [15.4271, '15.4276'],
-        [1.999449, new BN('1.999999999999999999')]
+        [new BN('15'), '10'],
+        [new BN('15'), new BN('10')],
+
+        [new BN('15'), '-10'],
+        [new BN('15'), new BN('-10')],
+
+        [new BN('-10'), '-15'],
+        [new BN('-10'), new BN('-15')],
+
+        [new BN('15'), '15'],
+        [new BN('15'), new BN('15')],
+
+        [new BN('-15'), '-15'],
+        [new BN('-15'), new BN('-15')],
+
+        [new BN('123456789123456789'), '123456789123'],
+        [new BN('123456789123456789'), new BN('123456789123')],
+
+        [new BN('123456789123456789'), '-123456789123'],
+        [new BN('123456789123456789'), new BN('-123456789123')],
+
+        [new BN('-123456789123'), '-123456789123456789'],
+        [new BN('-123456789123'), new BN('-123456789123456789')],
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.lessThan(b, 3);
-      }
+      test_cases.forEach(([a, b]) => {
+        notTester(a, b);
+      });
     });
 
-    it('should be less than when rounded with specific rounding mode', function () {
-      const test_cases = [
-        [10.045, 10.046],
-        [1.555, new BN('1.559999999999999999')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.lessThan(b, 2, BN.ROUND_HALF_DOWN);
-      }
-    });
-
-    it('should not be less than', function () {
-      const test_cases = [
-        [15, 10],
-        ['15', 10],
-        [15, '10'],
-        ['15', '10'],
-        [10.5, 10.5],
-        ['10.5', 10.5],
-        [10.6, '10.5'],
-        ['10.6', '10.5'],
-        ['1.000000000000000002', '1.000000000000000001'],
-        [new BN('1.000000000000000002'), '1.000000000000000001'],
-        ['1.000000000000000001', new BN('1.000000000000000001')],
-        [new BN('1.000000000000000002'), new BN('1.000000000000000001')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.not.be.bignumber.lessThan(b);
-      }
-    });
-
-    it('should fail if arguments are not string, number or BN', function () {
-      const test_cases = [
-        [{}, 1],
-        [1, {}],
-        [function () {}, []]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        (function () {
-          a.should.not.be.bignumber.lessThan(b);
-        }).should.throw(matchInvalidError);
-      }
-    });
+    argTypeChecker(tester, notTester);
   });
 
   describe('most/lte', function () {
-    it('should be less than or equal to', function () {
+    const [tester, notTester] = testerGenerator(['lte']);
+
+    it('asserts at most', function () {
       const test_cases = [
-        [10, 10],
-        ['10', 10],
-        [10, '10'],
-        ['10', '10'],
-        [10.4, 10.5],
-        ['10.4', 10.5],
-        [10.4, '10.5'],
-        ['10.4', '10.5'],
-        ['1.000000000000000001', '1.000000000000000002'],
-        [new BN('1.000000000000000001'), '1.000000000000000002'],
-        ['1.000000000000000001', new BN('1.000000000000000002')],
-        [new BN('1.000000000000000001'), new BN('1.000000000000000002')]
+        [new BN('10'), '15'],
+        [new BN('10'), new BN('15')],
+
+        [new BN('-10'), '15'],
+        [new BN('-10'), new BN('15')],
+
+        [new BN('-15'), '-10'],
+        [new BN('-15'), new BN('-10')],
+
+        [new BN('15'), '15'],
+        [new BN('15'), new BN('15')],
+
+        [new BN('-15'), '-15'],
+        [new BN('-15'), new BN('-15')],
+
+        [new BN('123456789123'), '123456789123456789'],
+        [new BN('123456789123'), new BN('123456789123456789')],
+
+        [new BN('-123456789123'), '123456789123456789'],
+        [new BN('-123456789123'), new BN('123456789123456789')],
+
+        [new BN('-123456789123456789'), '-123456789123'],
+        [new BN('-123456789123456789'), new BN('-123456789123')],
+
+        [new BN('123456789123456789'), '123456789123456789'],
+        [new BN('123456789123456789'), new BN('123456789123456789')],
+
+        [new BN('-123456789123456789'), '-123456789123456789'],
+        [new BN('-123456789123456789'), new BN('-123456789123456789')],
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
+      test_cases.forEach(([a, b]) => {
+        tester(a, b);
         a.should.be.bignumber.at.most(b);
-      }
+        expect(a).to.be.bignumber.at.most(b);
+      });
     });
 
-    it('should be less than or equal to when rounded', function () {
+    it('asserts not at most', function () {
       const test_cases = [
-        [10, 10],
-        ['100.25356140', 100.25355912],
-        [10, new BN('10.000000000000000001')],
-        [10, 15],
-        [15.4274, '15.4279'],
-        [1.999449, new BN('1.999999999999999999')],
+        [new BN('15'), '10'],
+        [new BN('15'), new BN('10')],
+
+        [new BN('15'), '-10'],
+        [new BN('15'), new BN('-10')],
+
+        [new BN('-10'), '-15'],
+        [new BN('-10'), new BN('-15')],
+
+        [new BN('123456789123456789'), '123456789123'],
+        [new BN('123456789123456789'), new BN('123456789123')],
+
+        [new BN('123456789123456789'), '-123456789123'],
+        [new BN('123456789123456789'), new BN('-123456789123')],
+
+        [new BN('-123456789123'), '-123456789123456789'],
+        [new BN('-123456789123'), new BN('-123456789123456789')],
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.at.most(b, 3);
-      }
-    });
-
-    it('should be less than or equal to when rounded with specific rounding mode', function () {
-      const test_cases = [
-        ['102.005', 102],
-        [10.005, new BN('10.000000000000000001')],
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.at.most(b, 2, BN.ROUND_HALF_EVEN);
-      }
-    });
-
-    it('should not be less than or equal to', function () {
-      const test_cases = [
-        [15, 10],
-        ['15', 10],
-        [15, '10'],
-        ['15', '10'],
-        [10.6, 10.5],
-        ['10.6', 10.5],
-        [10.6, '10.5'],
-        ['10.6', '10.5'],
-        ['1.000000000000000002', '1.000000000000000001'],
-        [new BN('1.000000000000000002'), '1.000000000000000001'],
-        ['1.000000000000000002', new BN('1.000000000000000001')],
-        [new BN('1.000000000000000002'), new BN('1.000000000000000001')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
+      test_cases.forEach(([a, b]) => {
+        notTester(a, b);
         a.should.not.be.bignumber.at.most(b);
-      }
+        expect(a).to.not.be.bignumber.at.most(b);
+      });
     });
 
-    it('should fail if arguments are not string, number or BN', function () {
-      const test_cases = [
-        [{}, 1],
-        [1, {}],
-        [function () {}, []]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        (function () {
-          a.should.not.be.bignumber.most(b);
-        }).should.throw(matchInvalidError);
-      }
-    });
-  });
-
-  describe('finite', function () {
-    it('should be finite', function () {
-      const test_cases = [
-        -100.5,
-        -100,
-        0,
-        100,
-        100.5,
-        '1000000000000000001',
-        new BN('1000000000000000001')
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        a.should.be.finite;
-      }
-    });
-
-    it('should not be finite', function () {
-      const test_cases = [
-        100.5 / 0,
-        NaN,
-        Infinity,
-        -Infinity,
-        +Infinity,
-        new BN(100).dividedBy(0)
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        a.should.not.be.finite;
-      }
-    });
-
-    it('should fail if argument is not string, number or BN', function () {
-      const test_cases = [
-        {},
-        [],
-        function () {}
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        (function () {
-          a.should.be.finite;
-        }).should.throw(matchInvalidError);
-      }
-    });
-  });
-
-  describe('integer', function () {
-    it('should be integer', function () {
-      const test_cases = [
-        0,
-        100,
-        '1000000000000000001',
-        new BN('1000000000000000001')
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        a.should.be.an.integer;
-      }
-    });
-
-    it('should not be integer', function () {
-      const test_cases = [
-        NaN,
-        100.5,
-        Infinity,
-        -Infinity,
-        +Infinity,
-        '1.000000000000000001',
-        new BN('1.000000000000000001')
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        a.should.not.be.an.integer;
-      }
-    });
-
-    it('should fail if argument is not string, number or BN', function () {
-      const test_cases = [
-        {},
-        [],
-        function () {}
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        (function () {
-          a.should.be.integer;
-        }).should.throw(matchInvalidError);
-      }
-    });
+    argTypeChecker(tester, notTester);
   });
 
   describe('negative', function () {
