@@ -386,18 +386,12 @@ describe('chai-bn', function () {
 
   describe('negative', function () {
     const tester = function (a) {
-      a.should.be.negative;
       a.should.be.bignumber.negative;
-
-      expect(a).to.be.negative;
       expect(a).to.be.bignumber.negative;
     };
 
     const notTester = function (a) {
-      a.should.not.be.negative;
       a.should.not.be.bignumber.negative;
-
-      expect(a).to.not.be.negative;
       expect(a).to.not.be.bignumber.negative;
     };
 
@@ -443,18 +437,12 @@ describe('chai-bn', function () {
 
   describe('zero', function () {
     const tester = function (a) {
-      a.should.be.zero;
       a.should.be.bignumber.zero;
-
-      expect(a).to.be.zero;
       expect(a).to.be.bignumber.zero;
     };
 
     const notTester = function (a) {
-      a.should.not.be.zero;
       a.should.not.be.bignumber.zero;
-
-      expect(a).to.not.be.zero;
       expect(a).to.not.be.bignumber.zero;
     };
 

@@ -57,6 +57,25 @@ module.exports = function (BN) {
       );
     };
 
+    const overwriteProperties = function (names, fn) {
+      function overwriteProperty (original) {
+        return function () {
+          if (utils.flag(this, 'bignumber')) {
+            const actual = this._obj;
+            assertBN(actual);
+
+            fn.apply(this, [actual]);
+          } else {
+            original.call(this);
+          }
+        };
+      }
+
+      names.forEach(name =>
+        chai.Assertion.overwriteProperty(name, overwriteProperty)
+      );
+    };
+
     // BN.eq
     overwriteMethods(['equal', 'equals', 'eq'], function (expected, actual) {
       this.assert(
@@ -113,10 +132,7 @@ module.exports = function (BN) {
     });
 
     // BN.isNeg
-    chai.Assertion.addProperty('negative', function () {
-      const value = this._obj;
-      assertBN(value);
-
+    overwriteProperties(['negative'], function (value) {
       this.assert(
         isNegative.bind(value)(),
         'expected #{this} to be negative',
@@ -126,10 +142,7 @@ module.exports = function (BN) {
     });
 
     // BN.isZero
-    chai.Assertion.addProperty('zero', function () {
-      const value = this._obj;
-      assertBN(value);
-
+    overwriteProperties(['zero'], function (value) {
       this.assert(
         isZero.bind(value)(),
         'expected #{this} to be zero',
