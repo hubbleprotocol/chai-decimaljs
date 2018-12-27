@@ -13,9 +13,7 @@ module.exports = function (BN) {
     });
 
     const isBN = function (object) {
-      return object.isBN ||
-        object instanceof BN ||
-        (object.constructor && object.constructor.name === 'BN');
+      return object instanceof BN;
     };
 
     const convert = function (value) {
