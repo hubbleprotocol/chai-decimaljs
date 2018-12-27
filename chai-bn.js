@@ -1,5 +1,4 @@
 module.exports = function (BN) {
-  BN = BN || require('bn.js');
   const isEqualTo = BN.prototype.eq;
   const isGreaterThan = BN.prototype.gt;
   const isGreaterThanOrEqualTo = BN.prototype.gte;
