@@ -5,6 +5,8 @@ module.exports = function (BN) {
   const isGreaterThanOrEqualTo = BN.prototype.gte;
   const isLessThan = BN.prototype.lt;
   const isLessThanOrEqualTo = BN.prototype.lte;
+  const isNegative = BN.prototype.isNeg;
+  const isZero = BN.prototype.isZero;
 
   return function (chai, utils) {
     chai.Assertion.addProperty('bignumber', function () {
@@ -28,18 +30,22 @@ module.exports = function (BN) {
       }
     };
 
+    const assertBN = function (value) {
+      if (!isBN(value)) {
+        new chai.Assertion(value).assert(
+          false,
+          'expected #{value} to be an instance of BN'
+        );
+      }
+    };
+
     const overwriteMethods = function (names, fn) {
       function overwriteMethod (original) {
         return function (value) {
           if (utils.flag(this, 'bignumber')) {
 
             const actual = this._obj;
-            if (!isBN(actual)) {
-              new chai.Assertion(actual).assert(
-                false,
-                'expected #{actual} to be an instance of BN'
-              );
-            }
+            assertBN(actual);
 
             const expected = convert(value);
             fn.apply(this, [expected, actual]);
@@ -109,11 +115,13 @@ module.exports = function (BN) {
       );
     });
 
-    // BN.isNegative
+    // BN.isNeg
     chai.Assertion.addProperty('negative', function () {
-      const value = convert(this._obj);
+      const value = this._obj;
+      assertBN(value);
+
       this.assert(
-        value.isNegative(),
+        isNegative.bind(value)(),
         'expected #{this} to be negative',
         'expected #{this} to not be negative',
         value.toString()
@@ -122,9 +130,11 @@ module.exports = function (BN) {
 
     // BN.isZero
     chai.Assertion.addProperty('zero', function () {
-      const value = convert(this._obj);
+      const value = this._obj;
+      assertBN(value);
+
       this.assert(
-        value.isZero(),
+        isZero.bind(value)(),
         'expected #{this} to be zero',
         'expected #{this} to not be zero',
         value.toString()

@@ -25,16 +25,20 @@ describe('chai-bn', function () {
           expect(a).to.not.be.bignumber[function_name](b);
         });
       }
-    ]
-  }
+    ];
+  };
 
   const argTypeChecker = function (tester, notTester) {
     it('fails when first argument is not BN', function () {
       const test_cases = [
         ['10', '10'],
+        [10, '10'],
         ['-10', '-10'],
+        [-10, '-10'],
         ['123456789123456789123456789', '123456789123456789123456789'],
+        [123456789123456789123456789, '123456789123456789123456789'],
         ['-123456789123456789123456789', '-123456789123456789123456789'],
+        [-123456789123456789123456789, '-123456789123456789123456789'],
       ];
 
       test_cases.forEach(([a, b]) => {
@@ -43,7 +47,7 @@ describe('chai-bn', function () {
       });
     });
 
-    it('fails when first argument is not BN or string', function () {
+    it('fails when second argument is not BN or string', function () {
       const test_cases = [
         [new BN('10'), 10],
         [new BN('-10'), -10],
@@ -56,7 +60,7 @@ describe('chai-bn', function () {
         (() => notTester(a, b)).should.throw(expectedMatchInvalidError);
       });
     });
-  }
+  };
 
   describe('equal/equals/eq', function () {
     const [tester, notTester] = testerGenerator(['equal', 'equals', 'eq']);
@@ -381,103 +385,116 @@ describe('chai-bn', function () {
   });
 
   describe('negative', function () {
-    it('should be negative', function () {
+    const tester = function (a) {
+      a.should.be.negative;
+      a.should.be.bignumber.negative;
+
+      expect(a).to.be.negative;
+      expect(a).to.be.bignumber.negative;
+    };
+
+    const notTester = function (a) {
+      a.should.not.be.negative;
+      a.should.not.be.bignumber.negative;
+
+      expect(a).to.not.be.negative;
+      expect(a).to.not.be.bignumber.negative;
+    };
+
+    it('asserts negativity', function () {
       const test_cases = [
-        -100,
-        -100.50,
-        -Infinity,
-        '-1000000000000000001',
-        new BN('-1000000000000000001')
+        new BN('-1'),
+        new BN('-1234856789123456789'),
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        a.should.be.negative;
-      }
+      test_cases.forEach((a) => {
+        tester(a);
+      });
     });
 
-    it('should not be negative', function () {
+    it('asserts unnegativity', function () {
       const test_cases = [
-        NaN,
+        new BN('0'),
+        new BN('1'),
+        new BN('1234856789123456789'),
+      ];
+
+      test_cases.forEach((a) => {
+        notTester(a);
+      });
+    });
+
+    it('fails when argument is not BN', function () {
+      const test_cases = [
+        '-5',
+        -5,
+        '0',
         0,
-        100,
-        100.50,
-        Infinity,
-        +Infinity,
-        '1000000000000000001',
-        new BN('1000000000000000001')
+        '5',
+        5,
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        a.should.not.be.negative;
-      }
-    });
-
-    it('should fail if argument is not string, number or BN', function () {
-      const test_cases = [
-        {},
-        [],
-        function () {}
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        (function () {
-          a.should.be.negative;
-        }).should.throw(matchInvalidError);
-      }
+      test_cases.forEach((a) => {
+        (() => tester(a)).should.throw(actualMatchInvalidError);
+        (() => notTester(a)).should.throw(actualMatchInvalidError);
+      });
     });
   });
 
   describe('zero', function () {
-    it('should be zero', function () {
+    const tester = function (a) {
+      a.should.be.zero;
+      a.should.be.bignumber.zero;
+
+      expect(a).to.be.zero;
+      expect(a).to.be.bignumber.zero;
+    };
+
+    const notTester = function (a) {
+      a.should.not.be.zero;
+      a.should.not.be.bignumber.zero;
+
+      expect(a).to.not.be.zero;
+      expect(a).to.not.be.bignumber.zero;
+    };
+
+    it('asserts zeroness', function () {
       const test_cases = [
+        new BN('0'),
+      ];
+
+      test_cases.forEach((a) => {
+        tester(a);
+      });
+    });
+
+    it('asserts unzeroness', function () {
+      const test_cases = [
+        new BN('1'),
+        new BN('-1'),
+        new BN('123456789123456789'),
+        new BN('-123456789123456789'),
+      ];
+
+      test_cases.forEach((a) => {
+        notTester(a);
+      });
+    });
+
+    it('fails when argument is not BN', function () {
+      const test_cases = [
+        '-5',
+        -5,
+        '0',
         0,
-        -0,
-        '+0',
-        new BN('0')
+        '5',
+        5,
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        a.should.be.zero;
-      }
-    });
-
-    it('should not be zero', function () {
-      const test_cases = [
-        NaN,
-        -100.50,
-        -100,
-        100,
-        100.50,
-        Infinity,
-        +Infinity,
-        -Infinity,
-        '1000000000000000001',
-        new BN('1000000000000000001')
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        a.should.not.be.zero;
-      }
-    });
-
-    it('should fail if argument is not string, number or BN', function () {
-      const test_cases = [
-        {},
-        [],
-        function () {}
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i];
-        (function () {
-          a.should.be.zero;
-        }).should.throw(matchInvalidError);
-      }
+      test_cases.forEach((a) => {
+        (() => tester(a)).should.throw(actualMatchInvalidError);
+        (() => notTester(a)).should.throw(actualMatchInvalidError);
+      });
     });
   });
 });
