@@ -1,40 +1,32 @@
-module.exports = function (BigNumber) {
-  BigNumber = BigNumber || require('bn.js');
-  var round = BigNumber.prototype.round || BigNumber.prototype.decimalPlaces;
-  var isEqualTo = BigNumber.prototype.isEqualTo || BigNumber.prototype.equals;
-  var isGreaterThan = BigNumber.prototype.isGreaterThan || BigNumber.prototype.greaterThan;
-  var isGreaterThanOrEqualTo = BigNumber.prototype.isGreaterThanOrEqualTo || BigNumber.prototype.greaterThanOrEqualTo;
-  var isLessThan = BigNumber.prototype.isLessThan || BigNumber.prototype.lessThan;
-  var isLessThanOrEqualTo = BigNumber.prototype.isLessThanOrEqualTo || BigNumber.prototype.lessThanOrEqualTo;
+module.exports = function (BN) {
+  BN = BN || require('bn.js');
+  var isEqualTo = BN.prototype.eq;
+  var isGreaterThan = BN.prototype.gt;
+  var isGreaterThanOrEqualTo = BN.prototype.gte;
+  var isLessThan = BN.prototype.lt;
+  var isLessThanOrEqualTo = BN.prototype.lte;
 
   return function (chai, utils) {
     chai.Assertion.addProperty('bignumber', function () {
       utils.flag(this, 'bignumber', true);
     });
 
-    var isBigNumber = function (object) {
-      return object.isBigNumber ||
-        object instanceof BigNumber ||
-        (object.constructor && object.constructor.name === 'BigNumber');
+    var isBN = function (object) {
+      return object.isBN ||
+        object instanceof BN ||
+        (object.constructor && object.constructor.name === 'BN');
     };
 
-    var convert = function (value, dp, rm) {
+    var convert = function (value) {
       var number;
 
-      if (typeof value === 'string' || typeof value === 'number') {
-        number = new BigNumber(value);
-      } else if (isBigNumber(value)) {
+      if (typeof value === 'string') {
+        number = new BN(value);
+      } else if (isBN(value)) {
         number = value;
       } else {
         new chai.Assertion(value).assert(false,
-          'expected #{act} to be an instance of string, number or BigNumber');
-      }
-
-      if (parseInt(dp) === dp) {
-        if (rm === undefined) {
-          rm = BigNumber.ROUND_HALF_UP;
-        }
-        number = round.bind(number)(dp, rm);
+          'expected #{act} to be an instance of BN or string');
       }
 
       return number;
@@ -42,10 +34,16 @@ module.exports = function (BigNumber) {
 
     var overwriteMethods = function (names, fn) {
       function overwriteMethod(original) {
-        return function (value, dp, rm) {
+        return function (value) {
           if (utils.flag(this, 'bignumber')) {
-            var expected = convert(value, dp, rm);
-            var actual = convert(this._obj, dp, rm);
+
+            var actual = this._obj;
+            if (!isBN(actual)) {
+              new chai.Assertion(actual).assert(false,
+                  'expected #{actual} to be an instance of BN');
+            }
+
+            var expected = convert(value);
             fn.apply(this, [expected, actual]);
           } else {
             original.apply(this, arguments);
@@ -57,7 +55,7 @@ module.exports = function (BigNumber) {
       }
     };
 
-    // BigNumber.isEqualTo
+    // BN.eq
     overwriteMethods(['equal', 'equals', 'eq'], function (expected, actual) {
       this.assert(
         isEqualTo.bind(expected)(actual),
@@ -68,7 +66,7 @@ module.exports = function (BigNumber) {
       );
     });
 
-    // BigNumber.isGreaterThan
+    // BN.gt
     overwriteMethods(['above', 'gt', 'greaterThan'], function (expected, actual) {
       this.assert(
         isGreaterThan.bind(actual)(expected),
@@ -79,7 +77,7 @@ module.exports = function (BigNumber) {
       );
     });
 
-    // BigNumber.isGreaterThanOrEqualTo
+    // BN.gte
     overwriteMethods(['least', 'gte'], function (expected, actual) {
       this.assert(
         isGreaterThanOrEqualTo.bind(actual)(expected),
@@ -90,7 +88,7 @@ module.exports = function (BigNumber) {
       );
     });
 
-    // BigNumber.isLessThan
+    // BN.lt
     overwriteMethods(['below', 'lt', 'lessThan'], function (expected, actual) {
       this.assert(
         isLessThan.bind(actual)(expected),
@@ -101,7 +99,7 @@ module.exports = function (BigNumber) {
       );
     });
 
-    // BigNumber.isLessThanOrEqualTo
+    // BN.lte
     overwriteMethods(['most', 'lte'], function (expected, actual) {
       this.assert(
         isLessThanOrEqualTo.bind(actual)(expected),
@@ -112,29 +110,7 @@ module.exports = function (BigNumber) {
       );
     });
 
-    // BigNumber.isFinite
-    chai.Assertion.addProperty('finite', function () {
-      var value = convert(this._obj);
-      this.assert(
-        value.isFinite(),
-        'expected #{this} to be finite',
-        'expected #{this} to not be finite',
-        value.toString()
-      );
-    });
-
-    // BigNumber.isInteger
-    chai.Assertion.addProperty('integer', function () {
-      var value = convert(this._obj);
-      this.assert(
-        value.isInteger(),
-        'expected #{this} to be an integer',
-        'expected #{this} to not be an integer',
-        value.toString()
-      );
-    });
-
-    // BigNumber.isNegative
+    // BN.isNegative
     chai.Assertion.addProperty('negative', function () {
       var value = convert(this._obj);
       this.assert(
@@ -145,7 +121,7 @@ module.exports = function (BigNumber) {
       );
     });
 
-    // BigNumber.isZero
+    // BN.isZero
     chai.Assertion.addProperty('zero', function () {
       var value = convert(this._obj);
       this.assert(

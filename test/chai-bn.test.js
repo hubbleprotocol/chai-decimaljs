@@ -1,101 +1,100 @@
-var BigNumber = require('bn.js');
-var chai = require('chai');
+const BN = require('bn.js');
+const chai = require('chai');
+const expect = chai.expect;
 
 chai.should();
-chai.use(require('../chai-bn')(BigNumber));
+chai.use(require('../chai-bn')(BN));
 chai.config.includeStack = true;
 
 describe('chai-bn', function () {
-  var matchInvalidError = /to be an instance of string, number or BigNumber/;
+  const actualMatchInvalidError = /to be an instance of BN/;
+  const expectedMatchInvalidError = /to be an instance of BN or string/;
+
+  const testerGenerator = function (function_names) {
+    return [
+      function (a, b) {
+        function_names.forEach(function_name => {
+          a.should.be.bignumber[function_name](b);
+          expect(a).to.be.bignumber[function_name](b);
+        });
+      },
+
+      function (a, b) {
+        function_names.forEach(function_name => {
+          a.should.not.be.bignumber[function_name](b);
+          expect(a).to.not.be.bignumber[function_name](b);
+        });
+      }
+    ]
+  }
 
   describe('equal/equals/eq', function () {
-    it('should be equal', function () {
-      var tests = [
-        [10, 10],
-        ['10', 10],
-        [10, '10'],
+    const [tester, notTester] = testerGenerator(['equal', 'equals', 'eq']);
+
+    it('asserts equality', function () {
+      const test_cases = [
+        [new BN('10'), '10'],
+        [new BN('10'), new BN('10')],
+
+        [new BN('-10'), '-10'],
+        [new BN('-10'), new BN('-10')],
+
+        [new BN('123456789123456789123456789'), '123456789123456789123456789'],
+        [new BN('123456789123456789123456789'), new BN('123456789123456789123456789')],
+
+        [new BN('-123456789123456789123456789'), '-123456789123456789123456789'],
+        [new BN('-123456789123456789123456789'), new BN('-123456789123456789123456789')],
+      ];
+
+      test_cases.forEach(([a, b]) => {
+        tester(a, b);
+      });
+    });
+
+    it('asserts inequality', function () {
+      const test_cases = [
+        [new BN('10'), '9'],
+        [new BN('10'), new BN('9')],
+
+        [new BN('-10'), '-9'],
+        [new BN('-10'), new BN('-9')],
+
+        [new BN('123456789123456789123456789'), '123456789123456789123456788'],
+        [new BN('123456789123456789123456789'), new BN('123456789123456789123456788')],
+
+        [new BN('-123456789123456789123456789'), '-123456789123456789123456788'],
+        [new BN('-123456789123456789123456789'), new BN('-123456789123456789123456788')],
+      ];
+
+      test_cases.forEach(([a, b]) => {
+        notTester(a, b);
+      });
+    });
+
+    it('fails when first argument is not BN', function () {
+      const test_cases = [
         ['10', '10'],
-        [10.5, 10.5],
-        ['10.5', 10.5],
-        [10.5, '10.5'],
-        ['10.5', '10.5'],
-        ['1.000000000000000001', '1.000000000000000001'],
-        [new BigNumber('1.000000000000000001'), '1.000000000000000001'],
-        ['1.000000000000000001', new BigNumber('1.000000000000000001')],
-        [new BigNumber('1.000000000000000001'), new BigNumber('1.000000000000000001')]
+        ['-10', '-10'],
+        ['123456789123456789123456789', '123456789123456789123456789'],
+        ['-123456789123456789123456789', '-123456789123456789123456789'],
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.equal(b);
-      }
+      test_cases.forEach(([a, b]) => {
+        (() => tester(a, b)).should.throw(actualMatchInvalidError);
+      });
     });
 
-    it('should be equal when rounded', function () {
-      var tests = [
-        [10, 10],
-        ['10.25355977', 10.25355812],
-        [10, new BigNumber('10.000000000000000001')]
+    it('fails when first argument is not BN or string', function () {
+      const test_cases = [
+        [new BN('10'), 10],
+        [new BN('-10'), -10],
+        [new BN('123456789123456789123456789'), 123456789123456789123456789],
+        [new BN('-123456789123456789123456789'), -123456789123456789123456789],
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.equal(b, 5);
-      }
-    });
-
-    it('should be equal when rounded with specific rounding mode', function () {
-      var tests = [
-        ['10.28', 10.21],
-        [10.09, new BigNumber('10.000000000000000001')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.equal(b, 1, BigNumber.ROUND_DOWN);
-      }
-    });
-
-    it('should not be equal', function () {
-      var tests = [
-        [10, 11],
-        ['11', 10],
-        [10, '11'],
-        ['10', '11'],
-        [10.5, 10.6],
-        ['10.5', 10.6],
-        [10.6, '10.5'],
-        ['10.6', '10.5'],
-        ['1.000000000000000001', '1.000000000000000002'],
-        [new BigNumber('1.000000000000000002'), '1.000000000000000001'],
-        ['1.000000000000000002', new BigNumber('1.000000000000000001')],
-        [new BigNumber('1.000000000000000001'), new BigNumber('1.000000000000000002')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.not.be.bignumber.equal(b);
-      }
-    });
-
-    it('should fail if arguments are not string, number or BigNumber', function () {
-      var tests = [
-        [{}, 1],
-        [1, {}],
-        [function () {}, []]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        (function () {
-          a.should.be.bignumber.equal(b);
-        }).should.throw(matchInvalidError);
-      }
+      test_cases.forEach(([a, b]) => {
+        (() => tester(a, b)).should.throw(expectedMatchInvalidError);
+      });
     });
   });
 
@@ -111,9 +110,9 @@ describe('chai-bn', function () {
         [10.6, '10.5'],
         ['10.6', '10.5'],
         ['1.000000000000000002', '1.000000000000000001'],
-        [new BigNumber('1.000000000000000002'), '1.000000000000000001'],
-        ['1.000000000000000002', new BigNumber('1.000000000000000001')],
-        [new BigNumber('1.000000000000000002'), new BigNumber('1.000000000000000001')]
+        [new BN('1.000000000000000002'), '1.000000000000000001'],
+        ['1.000000000000000002', new BN('1.000000000000000001')],
+        [new BN('1.000000000000000002'), new BN('1.000000000000000001')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -127,7 +126,7 @@ describe('chai-bn', function () {
       var tests = [
         [15, 10],
         ['15.4281', 15.4271],
-        [new BigNumber('1.999999999999999999'), 1.998999]
+        [new BN('1.999999999999999999'), 1.998999]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -140,13 +139,13 @@ describe('chai-bn', function () {
     it('should be greater than when rounded with specific rounding mode', function () {
       var tests = [
         ['10.016', 10.009],
-        [10.001, new BigNumber('9.999999999999999999')]
+        [10.001, new BN('9.999999999999999999')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
         var a = tests[i][0];
         var b = tests[i][1];
-        a.should.be.bignumber.greaterThan(b, 2, BigNumber.ROUND_UP);
+        a.should.be.bignumber.greaterThan(b, 2, BN.ROUND_UP);
       }
     });
 
@@ -161,9 +160,9 @@ describe('chai-bn', function () {
         [10.4, '10.5'],
         ['10.4', '10.5'],
         ['1.000000000000000001', '1.000000000000000002'],
-        [new BigNumber('1.000000000000000001'), '1.000000000000000002'],
-        ['1.000000000000000001', new BigNumber('1.000000000000000002')],
-        [new BigNumber('1.000000000000000001'), new BigNumber('1.000000000000000002')]
+        [new BN('1.000000000000000001'), '1.000000000000000002'],
+        ['1.000000000000000001', new BN('1.000000000000000002')],
+        [new BN('1.000000000000000001'), new BN('1.000000000000000002')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -173,7 +172,7 @@ describe('chai-bn', function () {
       }
     });
 
-    it('should fail if arguments are not string, number or BigNumber', function () {
+    it('should fail if arguments are not string, number or BN', function () {
       var tests = [
         [{}, 1],
         [1, {}],
@@ -202,9 +201,9 @@ describe('chai-bn', function () {
         [10.6, '10.5'],
         ['10.6', '10.5'],
         ['1.000000000000000002', '1.000000000000000001'],
-        [new BigNumber('1.000000000000000002'), '1.000000000000000001'],
-        ['1.000000000000000001', new BigNumber('1.000000000000000001')],
-        [new BigNumber('1.000000000000000002'), new BigNumber('1.000000000000000001')]
+        [new BN('1.000000000000000002'), '1.000000000000000001'],
+        ['1.000000000000000001', new BN('1.000000000000000001')],
+        [new BN('1.000000000000000002'), new BN('1.000000000000000001')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -218,10 +217,10 @@ describe('chai-bn', function () {
       var tests = [
         [10, 10],
         ['100.25356140', 100.25355912],
-        [10, new BigNumber('10.000000000000000001')],
+        [10, new BN('10.000000000000000001')],
         [15, 10],
         ['15.4279', 15.4274],
-        [new BigNumber('1.999999999999999999'), 1.999449]
+        [new BN('1.999999999999999999'), 1.999449]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -234,13 +233,13 @@ describe('chai-bn', function () {
     it('should be greater than or equal to when rounded with specific rounding mode', function () {
       var tests = [
         ['100.5', 100.499],
-        [1.995, new BigNumber('1.999999999999999999')]
+        [1.995, new BN('1.999999999999999999')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
         var a = tests[i][0];
         var b = tests[i][1];
-        a.should.be.bignumber.at.least(b, 2, BigNumber.ROUND_HALF_UP);
+        a.should.be.bignumber.at.least(b, 2, BN.ROUND_HALF_UP);
       }
     });
 
@@ -255,9 +254,9 @@ describe('chai-bn', function () {
         [10.5, '10.6'],
         ['10.5', '10.6'],
         ['1.000000000000000001', '1.000000000000000002'],
-        [new BigNumber('1.000000000000000001'), '1.000000000000000002'],
-        ['1.000000000000000001', new BigNumber('1.000000000000000002')],
-        [new BigNumber('1.000000000000000001'), new BigNumber('1.000000000000000002')]
+        [new BN('1.000000000000000001'), '1.000000000000000002'],
+        ['1.000000000000000001', new BN('1.000000000000000002')],
+        [new BN('1.000000000000000001'), new BN('1.000000000000000002')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -267,7 +266,7 @@ describe('chai-bn', function () {
       }
     });
 
-    it('should fail if arguments are not string, number or BigNumber', function () {
+    it('should fail if arguments are not string, number or BN', function () {
       var tests = [
         [{}, 1],
         [1, {}],
@@ -296,9 +295,9 @@ describe('chai-bn', function () {
         [10.5, '10.6'],
         ['10.5', '10.6'],
         ['1.000000000000000001', '1.000000000000000002'],
-        [new BigNumber('1.000000000000000001'), '1.000000000000000002'],
-        ['1.000000000000000001', new BigNumber('1.000000000000000002')],
-        [new BigNumber('1.000000000000000001'), new BigNumber('1.000000000000000002')]
+        [new BN('1.000000000000000001'), '1.000000000000000002'],
+        ['1.000000000000000001', new BN('1.000000000000000002')],
+        [new BN('1.000000000000000001'), new BN('1.000000000000000002')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -312,7 +311,7 @@ describe('chai-bn', function () {
       var tests = [
         [10, 15],
         [15.4271, '15.4276'],
-        [1.999449, new BigNumber('1.999999999999999999')]
+        [1.999449, new BN('1.999999999999999999')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -325,13 +324,13 @@ describe('chai-bn', function () {
     it('should be less than when rounded with specific rounding mode', function () {
       var tests = [
         [10.045, 10.046],
-        [1.555, new BigNumber('1.559999999999999999')]
+        [1.555, new BN('1.559999999999999999')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
         var a = tests[i][0];
         var b = tests[i][1];
-        a.should.be.bignumber.lessThan(b, 2, BigNumber.ROUND_HALF_DOWN);
+        a.should.be.bignumber.lessThan(b, 2, BN.ROUND_HALF_DOWN);
       }
     });
 
@@ -346,9 +345,9 @@ describe('chai-bn', function () {
         [10.6, '10.5'],
         ['10.6', '10.5'],
         ['1.000000000000000002', '1.000000000000000001'],
-        [new BigNumber('1.000000000000000002'), '1.000000000000000001'],
-        ['1.000000000000000001', new BigNumber('1.000000000000000001')],
-        [new BigNumber('1.000000000000000002'), new BigNumber('1.000000000000000001')]
+        [new BN('1.000000000000000002'), '1.000000000000000001'],
+        ['1.000000000000000001', new BN('1.000000000000000001')],
+        [new BN('1.000000000000000002'), new BN('1.000000000000000001')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -358,7 +357,7 @@ describe('chai-bn', function () {
       }
     });
 
-    it('should fail if arguments are not string, number or BigNumber', function () {
+    it('should fail if arguments are not string, number or BN', function () {
       var tests = [
         [{}, 1],
         [1, {}],
@@ -387,9 +386,9 @@ describe('chai-bn', function () {
         [10.4, '10.5'],
         ['10.4', '10.5'],
         ['1.000000000000000001', '1.000000000000000002'],
-        [new BigNumber('1.000000000000000001'), '1.000000000000000002'],
-        ['1.000000000000000001', new BigNumber('1.000000000000000002')],
-        [new BigNumber('1.000000000000000001'), new BigNumber('1.000000000000000002')]
+        [new BN('1.000000000000000001'), '1.000000000000000002'],
+        ['1.000000000000000001', new BN('1.000000000000000002')],
+        [new BN('1.000000000000000001'), new BN('1.000000000000000002')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -403,10 +402,10 @@ describe('chai-bn', function () {
       var tests = [
         [10, 10],
         ['100.25356140', 100.25355912],
-        [10, new BigNumber('10.000000000000000001')],
+        [10, new BN('10.000000000000000001')],
         [10, 15],
         [15.4274, '15.4279'],
-        [1.999449, new BigNumber('1.999999999999999999')],
+        [1.999449, new BN('1.999999999999999999')],
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -419,13 +418,13 @@ describe('chai-bn', function () {
     it('should be less than or equal to when rounded with specific rounding mode', function () {
       var tests = [
         ['102.005', 102],
-        [10.005, new BigNumber('10.000000000000000001')],
+        [10.005, new BN('10.000000000000000001')],
       ];
 
       for (var i = 0; i < tests.length; i++) {
         var a = tests[i][0];
         var b = tests[i][1];
-        a.should.be.bignumber.at.most(b, 2, BigNumber.ROUND_HALF_EVEN);
+        a.should.be.bignumber.at.most(b, 2, BN.ROUND_HALF_EVEN);
       }
     });
 
@@ -440,9 +439,9 @@ describe('chai-bn', function () {
         [10.6, '10.5'],
         ['10.6', '10.5'],
         ['1.000000000000000002', '1.000000000000000001'],
-        [new BigNumber('1.000000000000000002'), '1.000000000000000001'],
-        ['1.000000000000000002', new BigNumber('1.000000000000000001')],
-        [new BigNumber('1.000000000000000002'), new BigNumber('1.000000000000000001')]
+        [new BN('1.000000000000000002'), '1.000000000000000001'],
+        ['1.000000000000000002', new BN('1.000000000000000001')],
+        [new BN('1.000000000000000002'), new BN('1.000000000000000001')]
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -452,7 +451,7 @@ describe('chai-bn', function () {
       }
     });
 
-    it('should fail if arguments are not string, number or BigNumber', function () {
+    it('should fail if arguments are not string, number or BN', function () {
       var tests = [
         [{}, 1],
         [1, {}],
@@ -478,7 +477,7 @@ describe('chai-bn', function () {
         100,
         100.5,
         '1000000000000000001',
-        new BigNumber('1000000000000000001')
+        new BN('1000000000000000001')
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -494,7 +493,7 @@ describe('chai-bn', function () {
         Infinity,
         -Infinity,
         +Infinity,
-        new BigNumber(100).dividedBy(0)
+        new BN(100).dividedBy(0)
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -503,7 +502,7 @@ describe('chai-bn', function () {
       }
     });
 
-    it('should fail if argument is not string, number or BigNumber', function () {
+    it('should fail if argument is not string, number or BN', function () {
       var tests = [
         {},
         [],
@@ -525,7 +524,7 @@ describe('chai-bn', function () {
         0,
         100,
         '1000000000000000001',
-        new BigNumber('1000000000000000001')
+        new BN('1000000000000000001')
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -542,7 +541,7 @@ describe('chai-bn', function () {
         -Infinity,
         +Infinity,
         '1.000000000000000001',
-        new BigNumber('1.000000000000000001')
+        new BN('1.000000000000000001')
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -551,7 +550,7 @@ describe('chai-bn', function () {
       }
     });
 
-    it('should fail if argument is not string, number or BigNumber', function () {
+    it('should fail if argument is not string, number or BN', function () {
       var tests = [
         {},
         [],
@@ -574,7 +573,7 @@ describe('chai-bn', function () {
         -100.50,
         -Infinity,
         '-1000000000000000001',
-        new BigNumber('-1000000000000000001')
+        new BN('-1000000000000000001')
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -592,7 +591,7 @@ describe('chai-bn', function () {
         Infinity,
         +Infinity,
         '1000000000000000001',
-        new BigNumber('1000000000000000001')
+        new BN('1000000000000000001')
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -601,7 +600,7 @@ describe('chai-bn', function () {
       }
     });
 
-    it('should fail if argument is not string, number or BigNumber', function () {
+    it('should fail if argument is not string, number or BN', function () {
       var tests = [
         {},
         [],
@@ -623,7 +622,7 @@ describe('chai-bn', function () {
         0,
         -0,
         '+0',
-        new BigNumber('0')
+        new BN('0')
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -643,7 +642,7 @@ describe('chai-bn', function () {
         +Infinity,
         -Infinity,
         '1000000000000000001',
-        new BigNumber('1000000000000000001')
+        new BN('1000000000000000001')
       ];
 
       for (var i = 0; i < tests.length; i++) {
@@ -652,7 +651,7 @@ describe('chai-bn', function () {
       }
     });
 
-    it('should fail if argument is not string, number or BigNumber', function () {
+    it('should fail if argument is not string, number or BN', function () {
       var tests = [
         {},
         [],
