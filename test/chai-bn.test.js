@@ -100,7 +100,7 @@ describe('chai-bn', function () {
 
   describe('above/gt/greaterThan', function () {
     it('should be greater than', function () {
-      var tests = [
+      const test_cases = [
         [15, 10],
         ['15', 10],
         [15, '10'],
@@ -123,7 +123,7 @@ describe('chai-bn', function () {
     });
 
     it('should be greater than when rounded', function () {
-      var tests = [
+      const test_cases = [
         [15, 10],
         ['15.4281', 15.4271],
         [new BN('1.999999999999999999'), 1.998999]
@@ -137,7 +137,7 @@ describe('chai-bn', function () {
     });
 
     it('should be greater than when rounded with specific rounding mode', function () {
-      var tests = [
+      const test_cases = [
         ['10.016', 10.009],
         [10.001, new BN('9.999999999999999999')]
       ];
@@ -150,7 +150,7 @@ describe('chai-bn', function () {
     });
 
     it('should not be greater than', function () {
-      var tests = [
+      const test_cases = [
         [10, 10],
         ['10', 10],
         [10, '10'],
@@ -173,7 +173,7 @@ describe('chai-bn', function () {
     });
 
     it('should fail if arguments are not string, number or BN', function () {
-      var tests = [
+      const test_cases = [
         [{}, 1],
         [1, {}],
         [function () {}, []]
@@ -191,7 +191,7 @@ describe('chai-bn', function () {
 
   describe('least/gte', function () {
     it('should be greater than or equal to', function () {
-      var tests = [
+      const test_cases = [
         [15, 10],
         ['15', 10],
         [15, '10'],
@@ -214,7 +214,7 @@ describe('chai-bn', function () {
     });
 
     it('should be greater than or equal to when rounded', function () {
-      var tests = [
+      const test_cases = [
         [10, 10],
         ['100.25356140', 100.25355912],
         [10, new BN('10.000000000000000001')],
@@ -231,7 +231,7 @@ describe('chai-bn', function () {
     });
 
     it('should be greater than or equal to when rounded with specific rounding mode', function () {
-      var tests = [
+      const test_cases = [
         ['100.5', 100.499],
         [1.995, new BN('1.999999999999999999')]
       ];
@@ -244,7 +244,7 @@ describe('chai-bn', function () {
     });
 
     it('should not be greater than or equal to', function () {
-      var tests = [
+      const test_cases = [
         [10, 15],
         ['10', 15],
         [10, '15'],
@@ -267,7 +267,7 @@ describe('chai-bn', function () {
     });
 
     it('should fail if arguments are not string, number or BN', function () {
-      var tests = [
+      const test_cases = [
         [{}, 1],
         [1, {}],
         [function () {}, []]
@@ -285,7 +285,7 @@ describe('chai-bn', function () {
 
   describe('below/lt/lessThan', function () {
     it('should be less than', function () {
-      var tests = [
+      const test_cases = [
         [10, 15],
         ['10', 15],
         [10, '15'],
@@ -308,7 +308,7 @@ describe('chai-bn', function () {
     });
 
     it('should be less than when rounded', function () {
-      var tests = [
+      const test_cases = [
         [10, 15],
         [15.4271, '15.4276'],
         [1.999449, new BN('1.999999999999999999')]
@@ -322,7 +322,7 @@ describe('chai-bn', function () {
     });
 
     it('should be less than when rounded with specific rounding mode', function () {
-      var tests = [
+      const test_cases = [
         [10.045, 10.046],
         [1.555, new BN('1.559999999999999999')]
       ];
@@ -335,7 +335,7 @@ describe('chai-bn', function () {
     });
 
     it('should not be less than', function () {
-      var tests = [
+      const test_cases = [
         [15, 10],
         ['15', 10],
         [15, '10'],
@@ -358,7 +358,7 @@ describe('chai-bn', function () {
     });
 
     it('should fail if arguments are not string, number or BN', function () {
-      var tests = [
+      const test_cases = [
         [{}, 1],
         [1, {}],
         [function () {}, []]
@@ -376,7 +376,7 @@ describe('chai-bn', function () {
 
   describe('most/lte', function () {
     it('should be less than or equal to', function () {
-      var tests = [
+      const test_cases = [
         [10, 10],
         ['10', 10],
         [10, '10'],
@@ -399,7 +399,7 @@ describe('chai-bn', function () {
     });
 
     it('should be less than or equal to when rounded', function () {
-      var tests = [
+      const test_cases = [
         [10, 10],
         ['100.25356140', 100.25355912],
         [10, new BN('10.000000000000000001')],
@@ -416,7 +416,7 @@ describe('chai-bn', function () {
     });
 
     it('should be less than or equal to when rounded with specific rounding mode', function () {
-      var tests = [
+      const test_cases = [
         ['102.005', 102],
         [10.005, new BN('10.000000000000000001')],
       ];
@@ -429,7 +429,7 @@ describe('chai-bn', function () {
     });
 
     it('should not be less than or equal to', function () {
-      var tests = [
+      const test_cases = [
         [15, 10],
         ['15', 10],
         [15, '10'],
@@ -452,7 +452,7 @@ describe('chai-bn', function () {
     });
 
     it('should fail if arguments are not string, number or BN', function () {
-      var tests = [
+      const test_cases = [
         [{}, 1],
         [1, {}],
         [function () {}, []]
@@ -470,7 +470,7 @@ describe('chai-bn', function () {
 
   describe('finite', function () {
     it('should be finite', function () {
-      var tests = [
+      const test_cases = [
         -100.5,
         -100,
         0,
@@ -487,7 +487,7 @@ describe('chai-bn', function () {
     });
 
     it('should not be finite', function () {
-      var tests = [
+      const test_cases = [
         100.5 / 0,
         NaN,
         Infinity,
@@ -503,7 +503,7 @@ describe('chai-bn', function () {
     });
 
     it('should fail if argument is not string, number or BN', function () {
-      var tests = [
+      const test_cases = [
         {},
         [],
         function () {}
@@ -520,7 +520,7 @@ describe('chai-bn', function () {
 
   describe('integer', function () {
     it('should be integer', function () {
-      var tests = [
+      const test_cases = [
         0,
         100,
         '1000000000000000001',
@@ -534,7 +534,7 @@ describe('chai-bn', function () {
     });
 
     it('should not be integer', function () {
-      var tests = [
+      const test_cases = [
         NaN,
         100.5,
         Infinity,
@@ -551,7 +551,7 @@ describe('chai-bn', function () {
     });
 
     it('should fail if argument is not string, number or BN', function () {
-      var tests = [
+      const test_cases = [
         {},
         [],
         function () {}
@@ -568,7 +568,7 @@ describe('chai-bn', function () {
 
   describe('negative', function () {
     it('should be negative', function () {
-      var tests = [
+      const test_cases = [
         -100,
         -100.50,
         -Infinity,
@@ -583,7 +583,7 @@ describe('chai-bn', function () {
     });
 
     it('should not be negative', function () {
-      var tests = [
+      const test_cases = [
         NaN,
         0,
         100,
@@ -601,7 +601,7 @@ describe('chai-bn', function () {
     });
 
     it('should fail if argument is not string, number or BN', function () {
-      var tests = [
+      const test_cases = [
         {},
         [],
         function () {}
@@ -618,7 +618,7 @@ describe('chai-bn', function () {
 
   describe('zero', function () {
     it('should be zero', function () {
-      var tests = [
+      const test_cases = [
         0,
         -0,
         '+0',
@@ -632,7 +632,7 @@ describe('chai-bn', function () {
     });
 
     it('should not be zero', function () {
-      var tests = [
+      const test_cases = [
         NaN,
         -100.50,
         -100,
@@ -652,7 +652,7 @@ describe('chai-bn', function () {
     });
 
     it('should fail if argument is not string, number or BN', function () {
-      var tests = [
+      const test_cases = [
         {},
         [],
         function () {}

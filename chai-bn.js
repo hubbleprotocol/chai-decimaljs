@@ -1,58 +1,57 @@
 module.exports = function (BN) {
   BN = BN || require('bn.js');
-  var isEqualTo = BN.prototype.eq;
-  var isGreaterThan = BN.prototype.gt;
-  var isGreaterThanOrEqualTo = BN.prototype.gte;
-  var isLessThan = BN.prototype.lt;
-  var isLessThanOrEqualTo = BN.prototype.lte;
+  const isEqualTo = BN.prototype.eq;
+  const isGreaterThan = BN.prototype.gt;
+  const isGreaterThanOrEqualTo = BN.prototype.gte;
+  const isLessThan = BN.prototype.lt;
+  const isLessThanOrEqualTo = BN.prototype.lte;
 
   return function (chai, utils) {
     chai.Assertion.addProperty('bignumber', function () {
       utils.flag(this, 'bignumber', true);
     });
 
-    var isBN = function (object) {
+    const isBN = function (object) {
       return object.isBN ||
         object instanceof BN ||
         (object.constructor && object.constructor.name === 'BN');
     };
 
-    var convert = function (value) {
-      var number;
-
+    const convert = function (value) {
       if (typeof value === 'string') {
-        number = new BN(value);
+        return new BN(value);
       } else if (isBN(value)) {
-        number = value;
+        return value;
       } else {
         new chai.Assertion(value).assert(false,
           'expected #{act} to be an instance of BN or string');
       }
-
-      return number;
     };
 
-    var overwriteMethods = function (names, fn) {
-      function overwriteMethod(original) {
+    const overwriteMethods = function (names, fn) {
+      function overwriteMethod (original) {
         return function (value) {
           if (utils.flag(this, 'bignumber')) {
 
-            var actual = this._obj;
+            const actual = this._obj;
             if (!isBN(actual)) {
-              new chai.Assertion(actual).assert(false,
-                  'expected #{actual} to be an instance of BN');
+              new chai.Assertion(actual).assert(
+                false,
+                'expected #{actual} to be an instance of BN'
+              );
             }
 
-            var expected = convert(value);
+            const expected = convert(value);
             fn.apply(this, [expected, actual]);
           } else {
             original.apply(this, arguments);
           }
         };
       }
-      for (var i = 0; i < names.length; i++) {
-        chai.Assertion.overwriteMethod(names[i], overwriteMethod);
-      }
+
+      names.forEach(name =>
+        chai.Assertion.overwriteMethod(name, overwriteMethod)
+      );
     };
 
     // BN.eq
@@ -112,7 +111,7 @@ module.exports = function (BN) {
 
     // BN.isNegative
     chai.Assertion.addProperty('negative', function () {
-      var value = convert(this._obj);
+      const value = convert(this._obj);
       this.assert(
         value.isNegative(),
         'expected #{this} to be negative',
@@ -123,7 +122,7 @@ module.exports = function (BN) {
 
     // BN.isZero
     chai.Assertion.addProperty('zero', function () {
-      var value = convert(this._obj);
+      const value = convert(this._obj);
       this.assert(
         value.isZero(),
         'expected #{this} to be zero',
