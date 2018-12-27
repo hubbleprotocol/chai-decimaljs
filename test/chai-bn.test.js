@@ -1,11 +1,11 @@
-var BigNumber = require('bignumber.js');
+var BigNumber = require('bn.js');
 var chai = require('chai');
 
 chai.should();
-chai.use(require('../chai-bignumber')(BigNumber));
+chai.use(require('../chai-bn')(BigNumber));
 chai.config.includeStack = true;
 
-describe('chai-bignumber', function () {
+describe('chai-bn', function () {
   var matchInvalidError = /to be an instance of string, number or BigNumber/;
 
   describe('equal/equals/eq', function () {

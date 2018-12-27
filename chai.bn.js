@@ -1,5 +1,5 @@
 module.exports = function (BigNumber) {
-  BigNumber = BigNumber || require('bignumber.js');
+  BigNumber = BigNumber || require('bn.js');
   var round = BigNumber.prototype.round || BigNumber.prototype.decimalPlaces;
   var isEqualTo = BigNumber.prototype.isEqualTo || BigNumber.prototype.equals;
   var isGreaterThan = BigNumber.prototype.isGreaterThan || BigNumber.prototype.greaterThan;
