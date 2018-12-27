@@ -28,7 +28,37 @@ describe('chai-bn', function () {
     ]
   }
 
-  describe('equal/equals/eq', function () {
+  const argTypeChecker = function (tester, notTester) {
+    it('fails when first argument is not BN', function () {
+      const test_cases = [
+        ['10', '10'],
+        ['-10', '-10'],
+        ['123456789123456789123456789', '123456789123456789123456789'],
+        ['-123456789123456789123456789', '-123456789123456789123456789'],
+      ];
+
+      test_cases.forEach(([a, b]) => {
+        (() => tester(a, b)).should.throw(actualMatchInvalidError);
+        (() => notTester(a, b)).should.throw(actualMatchInvalidError);
+      });
+    });
+
+    it('fails when first argument is not BN or string', function () {
+      const test_cases = [
+        [new BN('10'), 10],
+        [new BN('-10'), -10],
+        [new BN('123456789123456789123456789'), 123456789123456789123456789],
+        [new BN('-123456789123456789123456789'), -123456789123456789123456789],
+      ];
+
+      test_cases.forEach(([a, b]) => {
+        (() => tester(a, b)).should.throw(expectedMatchInvalidError);
+        (() => notTester(a, b)).should.throw(expectedMatchInvalidError);
+      });
+    });
+  }
+
+  describe.only('equal/equals/eq', function () {
     const [tester, notTester] = testerGenerator(['equal', 'equals', 'eq']);
 
     it('asserts equality', function () {
@@ -71,122 +101,65 @@ describe('chai-bn', function () {
       });
     });
 
-    it('fails when first argument is not BN', function () {
-      const test_cases = [
-        ['10', '10'],
-        ['-10', '-10'],
-        ['123456789123456789123456789', '123456789123456789123456789'],
-        ['-123456789123456789123456789', '-123456789123456789123456789'],
-      ];
-
-      test_cases.forEach(([a, b]) => {
-        (() => tester(a, b)).should.throw(actualMatchInvalidError);
-      });
-    });
-
-    it('fails when first argument is not BN or string', function () {
-      const test_cases = [
-        [new BN('10'), 10],
-        [new BN('-10'), -10],
-        [new BN('123456789123456789123456789'), 123456789123456789123456789],
-        [new BN('-123456789123456789123456789'), -123456789123456789123456789],
-      ];
-
-      test_cases.forEach(([a, b]) => {
-        (() => tester(a, b)).should.throw(expectedMatchInvalidError);
-      });
-    });
+    argTypeChecker(tester, notTester);
   });
 
-  describe('above/gt/greaterThan', function () {
-    it('should be greater than', function () {
+  describe.only('above/gt/greaterThan', function () {
+    const [tester, notTester] = testerGenerator(['above', 'gt', 'greaterThan']);
+
+    it('asserts greatness', function () {
       const test_cases = [
-        [15, 10],
-        ['15', 10],
-        [15, '10'],
-        ['15', '10'],
-        [10.6, 10.5],
-        ['10.6', 10.5],
-        [10.6, '10.5'],
-        ['10.6', '10.5'],
-        ['1.000000000000000002', '1.000000000000000001'],
-        [new BN('1.000000000000000002'), '1.000000000000000001'],
-        ['1.000000000000000002', new BN('1.000000000000000001')],
-        [new BN('1.000000000000000002'), new BN('1.000000000000000001')]
+        [new BN('15'), '10'],
+        [new BN('15'), new BN('10')],
+
+        [new BN('15'), '-10'],
+        [new BN('15'), new BN('-10')],
+
+        [new BN('-10'), '-15'],
+        [new BN('-10'), new BN('-15')],
+
+        [new BN('123456789123456789'), '123456789123'],
+        [new BN('123456789123456789'), new BN('123456789123')],
+
+        [new BN('123456789123456789'), '-123456789123'],
+        [new BN('123456789123456789'), new BN('-123456789123')],
+
+        [new BN('-123456789123'), '-123456789123456789'],
+        [new BN('-123456789123'), new BN('-123456789123456789')],
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.greaterThan(b);
-      }
+      test_cases.forEach(([a, b]) => {
+        tester(a, b);
+      });
     });
 
-    it('should be greater than when rounded', function () {
+    it('asserts ungreatness', function () {
       const test_cases = [
-        [15, 10],
-        ['15.4281', 15.4271],
-        [new BN('1.999999999999999999'), 1.998999]
+        [new BN('10'), '15'],
+        [new BN('10'), new BN('15')],
+
+        [new BN('-10'), '15'],
+        [new BN('-10'), new BN('15')],
+
+        [new BN('-15'), '-10'],
+        [new BN('-15'), new BN('-10')],
+
+        [new BN('123456789123'), '123456789123456789'],
+        [new BN('123456789123'), new BN('123456789123456789')],
+
+        [new BN('-123456789123'), '123456789123456789'],
+        [new BN('-123456789123'), new BN('123456789123456789')],
+
+        [new BN('-123456789123456789'), '-123456789123'],
+        [new BN('-123456789123456789'), new BN('-123456789123')],
       ];
 
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.greaterThan(b, 3);
-      }
+      test_cases.forEach(([a, b]) => {
+        notTester(a, b);
+      });
     });
 
-    it('should be greater than when rounded with specific rounding mode', function () {
-      const test_cases = [
-        ['10.016', 10.009],
-        [10.001, new BN('9.999999999999999999')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.be.bignumber.greaterThan(b, 2, BN.ROUND_UP);
-      }
-    });
-
-    it('should not be greater than', function () {
-      const test_cases = [
-        [10, 10],
-        ['10', 10],
-        [10, '10'],
-        ['10', '10'],
-        [10.4, 10.5],
-        ['10.4', 10.5],
-        [10.4, '10.5'],
-        ['10.4', '10.5'],
-        ['1.000000000000000001', '1.000000000000000002'],
-        [new BN('1.000000000000000001'), '1.000000000000000002'],
-        ['1.000000000000000001', new BN('1.000000000000000002')],
-        [new BN('1.000000000000000001'), new BN('1.000000000000000002')]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        a.should.not.be.bignumber.greaterThan(b);
-      }
-    });
-
-    it('should fail if arguments are not string, number or BN', function () {
-      const test_cases = [
-        [{}, 1],
-        [1, {}],
-        [function () {}, []]
-      ];
-
-      for (var i = 0; i < tests.length; i++) {
-        var a = tests[i][0];
-        var b = tests[i][1];
-        (function () {
-          a.should.be.bignumber.greaterThan(b);
-        }).should.throw(matchInvalidError);
-      }
-    });
+    argTypeChecker(tester, notTester);
   });
 
   describe('least/gte', function () {
