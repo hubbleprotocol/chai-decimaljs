@@ -41,7 +41,7 @@ Actual values (i.e. the values being asserted) must be instances of `BN`. Expect
 Methods:
 
 ```javascript
-const actual = new BN('100000000000000000').plus(new BN('1');
+const actual = new BN('100000000000000000').plus(new BN('1'));
 const expected = '100000000000000001';
 
 actual.should.be.bignumber.equal(expected);
