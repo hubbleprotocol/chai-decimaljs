@@ -10,6 +10,7 @@
   "devDependencies": {
     "bn.js": "^4.11.8",
     "chai": "^4.2.0",
+    "eslint": "^5.11.1",
     "eslint-plugin-mocha-no-only": "^1.1.0",
     "mocha": "^5.2.0"
   },
@@ -38,9 +39,7 @@
   "files": [
     "chai-bn.js"
   ],
-  "dependencies": {
-    "eslint": "^5.11.1"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "bn.js": "^4.11.0",
     "chai": "^4.0.0"
