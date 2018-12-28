@@ -1,3 +1,13 @@
 language: node_js
 node_js:
   - "node"
+
+jobs:
+  include:
+    - stage: tests
+      name: "Linter"
+      script: npm run lint
+
+    - stage: tests
+      name: "Unit tests"
+      script: npm run test
