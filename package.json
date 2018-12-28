@@ -1,10 +1,9 @@
 {
   "name": "chai-bn",
   "version": "0.1.0-alpha.0",
-  "description": "Chai assertions for comparing arbitrary-precision decimals using the bignumber.js library",
+  "description": "Chai assertions for comparing arbitrary-precision integers using the bignumber.js library",
   "main": "chai-bn.js",
   "scripts": {
-    "lint": "jshint *.js",
     "test": "mocha test/*.js"
   },
   "devDependencies": {
