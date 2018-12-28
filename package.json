@@ -40,5 +40,9 @@
   ],
   "dependencies": {
     "eslint": "^5.11.1"
+  },
+  "peerDependencies": {
+    "bn.js": "^4.11.0",
+    "chai": "^4.0.0"
   }
 }
