@@ -34,7 +34,7 @@ module.exports = function (BN) {
       if (!isBN(value)) {
         new chai.Assertion(value).assert(
           false,
-          'expected #{value} to be an instance of BN'
+          'expected #{act} to be an instance of BN'
         );
       }
     };
