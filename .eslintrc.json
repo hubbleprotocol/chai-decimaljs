@@ -10,6 +10,7 @@
   ],
   "rules": {
     "array-bracket-spacing": ["error"],
+    "camelcase": ["error"],
     "computed-property-spacing": ["error"],
     "curly": ["error"],
     "eqeqeq": ["error"],

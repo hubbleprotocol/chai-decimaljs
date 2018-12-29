@@ -10,19 +10,19 @@ describe('chai-bn', function () {
   const actualMatchInvalidError = /to be an instance of BN/;
   const expectedMatchInvalidError = /to be an instance of BN or string/;
 
-  const testerGenerator = function (function_names) {
+  const testerGenerator = function (functionNames) {
     return [
       function (a, b) {
-        function_names.forEach(function_name => {
-          a.should.be.bignumber.that[function_name](b);
-          expect(a).to.be.bignumber.that[function_name](b);
+        functionNames.forEach(functionName => {
+          a.should.be.bignumber.that[functionName](b);
+          expect(a).to.be.bignumber.that[functionName](b);
         });
       },
 
       function (a, b) {
-        function_names.forEach(function_name => {
-          a.should.not.be.bignumber.that[function_name](b);
-          expect(a).to.not.be.bignumber.that[function_name](b);
+        functionNames.forEach(functionName => {
+          a.should.not.be.bignumber.that[functionName](b);
+          expect(a).to.not.be.bignumber.that[functionName](b);
         });
       }
     ];
@@ -30,7 +30,7 @@ describe('chai-bn', function () {
 
   const argTypeChecker = function (tester, notTester) {
     it('fails when first argument is not BN', function () {
-      const test_cases = [
+      const testCases = [
         ['10', '10'],
         [10, '10'],
         ['-10', '-10'],
@@ -41,21 +41,21 @@ describe('chai-bn', function () {
         [-123456789123456789123456789, '-123456789123456789123456789'],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         (() => tester(a, b)).should.throw(actualMatchInvalidError);
         (() => notTester(a, b)).should.throw(actualMatchInvalidError);
       });
     });
 
     it('fails when second argument is not BN or string', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('10'), 10],
         [new BN('-10'), -10],
         [new BN('123456789123456789123456789'), 123456789123456789123456789],
         [new BN('-123456789123456789123456789'), -123456789123456789123456789],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         (() => tester(a, b)).should.throw(expectedMatchInvalidError);
         (() => notTester(a, b)).should.throw(expectedMatchInvalidError);
       });
@@ -66,7 +66,7 @@ describe('chai-bn', function () {
     const [tester, notTester] = testerGenerator(['equal', 'equals', 'eq']);
 
     it('asserts equality', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('10'), '10'],
         [new BN('10'), new BN('10')],
 
@@ -80,13 +80,13 @@ describe('chai-bn', function () {
         [new BN('-123456789123456789123456789'), new BN('-123456789123456789123456789')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         tester(a, b);
       });
     });
 
     it('asserts inequality', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('10'), '9'],
         [new BN('10'), new BN('9')],
 
@@ -100,7 +100,7 @@ describe('chai-bn', function () {
         [new BN('-123456789123456789123456789'), new BN('-123456789123456789123456788')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         notTester(a, b);
       });
     });
@@ -112,7 +112,7 @@ describe('chai-bn', function () {
     const [tester, notTester] = testerGenerator(['above', 'gt', 'greaterThan']);
 
     it('asserts aboveness', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('15'), '10'],
         [new BN('15'), new BN('10')],
 
@@ -132,13 +132,13 @@ describe('chai-bn', function () {
         [new BN('-123456789123'), new BN('-123456789123456789')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         tester(a, b);
       });
     });
 
     it('asserts unaboveness', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('10'), '15'],
         [new BN('10'), new BN('15')],
 
@@ -164,7 +164,7 @@ describe('chai-bn', function () {
         [new BN('-123456789123456789'), new BN('-123456789123')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         notTester(a, b);
       });
     });
@@ -176,7 +176,7 @@ describe('chai-bn', function () {
     const [tester, notTester] = testerGenerator(['gte']);
 
     it('asserts at least', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('15'), '10'],
         [new BN('15'), new BN('10')],
 
@@ -208,7 +208,7 @@ describe('chai-bn', function () {
         [new BN('-123456789123456789'), new BN('-123456789123456789')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         tester(a, b);
         a.should.be.bignumber.that.is.at.least(b);
         expect(a).to.be.bignumber.that.is.at.least(b);
@@ -216,7 +216,7 @@ describe('chai-bn', function () {
     });
 
     it('asserts not at least', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('10'), '15'],
         [new BN('10'), new BN('15')],
 
@@ -236,7 +236,7 @@ describe('chai-bn', function () {
         [new BN('-123456789123456789'), new BN('-123456789123')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         notTester(a, b);
         a.should.not.be.bignumber.that.is.at.least(b);
         expect(a).to.not.be.bignumber.that.is.at.least(b);
@@ -250,7 +250,7 @@ describe('chai-bn', function () {
     const [tester, notTester] = testerGenerator(['below', 'lt', 'lessThan']);
 
     it('asserts belowness', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('10'), '15'],
         [new BN('10'), new BN('15')],
 
@@ -270,13 +270,13 @@ describe('chai-bn', function () {
         [new BN('-123456789123456789'), new BN('-123456789123')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         tester(a, b);
       });
     });
 
     it('asserts unbelowness', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('15'), '10'],
         [new BN('15'), new BN('10')],
 
@@ -302,7 +302,7 @@ describe('chai-bn', function () {
         [new BN('-123456789123'), new BN('-123456789123456789')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         notTester(a, b);
       });
     });
@@ -314,7 +314,7 @@ describe('chai-bn', function () {
     const [tester, notTester] = testerGenerator(['lte']);
 
     it('asserts at most', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('10'), '15'],
         [new BN('10'), new BN('15')],
 
@@ -346,7 +346,7 @@ describe('chai-bn', function () {
         [new BN('-123456789123456789'), new BN('-123456789123456789')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         tester(a, b);
         a.should.be.bignumber.that.is.at.most(b);
         expect(a).to.be.bignumber.that.is.at.most(b);
@@ -354,7 +354,7 @@ describe('chai-bn', function () {
     });
 
     it('asserts not at most', function () {
-      const test_cases = [
+      const testCases = [
         [new BN('15'), '10'],
         [new BN('15'), new BN('10')],
 
@@ -374,7 +374,7 @@ describe('chai-bn', function () {
         [new BN('-123456789123'), new BN('-123456789123456789')],
       ];
 
-      test_cases.forEach(([a, b]) => {
+      testCases.forEach(([a, b]) => {
         notTester(a, b);
         a.should.not.be.bignumber.at.most(b);
         expect(a).to.not.be.bignumber.at.most(b);
@@ -396,30 +396,30 @@ describe('chai-bn', function () {
     };
 
     it('asserts negativity', function () {
-      const test_cases = [
+      const testCases = [
         new BN('-1'),
         new BN('-1234856789123456789'),
       ];
 
-      test_cases.forEach((a) => {
+      testCases.forEach((a) => {
         tester(a);
       });
     });
 
     it('asserts unnegativity', function () {
-      const test_cases = [
+      const testCases = [
         new BN('0'),
         new BN('1'),
         new BN('1234856789123456789'),
       ];
 
-      test_cases.forEach((a) => {
+      testCases.forEach((a) => {
         notTester(a);
       });
     });
 
     it('fails when argument is not BN', function () {
-      const test_cases = [
+      const testCases = [
         '-5',
         -5,
         '0',
@@ -428,7 +428,7 @@ describe('chai-bn', function () {
         5,
       ];
 
-      test_cases.forEach((a) => {
+      testCases.forEach((a) => {
         (() => tester(a)).should.throw(actualMatchInvalidError);
         (() => notTester(a)).should.throw(actualMatchInvalidError);
       });
@@ -447,30 +447,30 @@ describe('chai-bn', function () {
     };
 
     it('asserts zeroness', function () {
-      const test_cases = [
+      const testCases = [
         new BN('0'),
       ];
 
-      test_cases.forEach((a) => {
+      testCases.forEach((a) => {
         tester(a);
       });
     });
 
     it('asserts unzeroness', function () {
-      const test_cases = [
+      const testCases = [
         new BN('1'),
         new BN('-1'),
         new BN('123456789123456789'),
         new BN('-123456789123456789'),
       ];
 
-      test_cases.forEach((a) => {
+      testCases.forEach((a) => {
         notTester(a);
       });
     });
 
     it('fails when argument is not BN', function () {
-      const test_cases = [
+      const testCases = [
         '-5',
         -5,
         '0',
@@ -479,7 +479,7 @@ describe('chai-bn', function () {
         5,
       ];
 
-      test_cases.forEach((a) => {
+      testCases.forEach((a) => {
         (() => tester(a)).should.throw(actualMatchInvalidError);
         (() => notTester(a)).should.throw(actualMatchInvalidError);
       });

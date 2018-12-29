@@ -8,26 +8,29 @@ module.exports = function (BN) {
   const isZero = BN.prototype.isZero;
 
   return function (chai, utils) {
+    // The 'bignumber' property sets the 'bignumber' flag, enabling the custom overrides
     chai.Assertion.addProperty('bignumber', function () {
       utils.flag(this, 'bignumber', true);
     });
 
+    // BN objects created using different (compatible) instances of BN can be used via BN.isBN()
     const isBN = function (object) {
       return object instanceof BN || BN.isBN(object);
     };
 
     const convert = function (value) {
-      if (typeof value === 'string') {
-        return new BN(value);
-      } else if (isBN(value)) {
+      if (isBN(value)) {
         return value;
+      } else if (typeof value === 'string') {
+        return new BN(value);
+      // BN also supports conversion from e.g. JavaScript numbers, but only for small values. We disable that entirely
       } else {
         new chai.Assertion(value).assert(false,
           'expected #{act} to be an instance of BN or string');
       }
     };
 
-    const assertBN = function (value) {
+    const assertIsBN = function (value) {
       if (!isBN(value)) {
         new chai.Assertion(value).assert(
           false,
@@ -36,43 +39,47 @@ module.exports = function (BN) {
       }
     };
 
-    const overwriteMethods = function (names, fn) {
-      function overwriteMethod (original) {
+    // Overwrites the assertion performed by multiple methods (which should be aliases) with a new function. Prior to
+    // calling said function, we assert that the actual value is a BN, and attempt to convert the expected value.
+    const overwriteMethods = function (methodNames, newAssertion) {
+      function overwriteMethod (originalAssertion) {
         return function (value) {
           if (utils.flag(this, 'bignumber')) {
-
             const actual = this._obj;
-            assertBN(actual);
+            assertIsBN(actual);
 
             const expected = convert(value);
-            fn.apply(this, [expected, actual]);
+
+            newAssertion.apply(this, [expected, actual]);
           } else {
-            original.apply(this, arguments);
+            originalAssertion.apply(this, arguments);
           }
         };
       }
 
-      names.forEach(name =>
-        chai.Assertion.overwriteMethod(name, overwriteMethod)
+      methodNames.forEach(methodName =>
+        chai.Assertion.overwriteMethod(methodName, overwriteMethod)
       );
     };
 
-    const overwriteProperties = function (names, fn) {
-      function overwriteProperty (original) {
+    // Overwrites the assertion performed by multiple properties (which should be aliases) with a new function. Prior to
+    // calling said function, we assert that the actual value is a BN.
+    const overwriteProperties = function (propertyNames, newAssertion) {
+      function overwriteProperty (originalAssertion) {
         return function () {
           if (utils.flag(this, 'bignumber')) {
             const actual = this._obj;
-            assertBN(actual);
+            assertIsBN(actual);
 
-            fn.apply(this, [actual]);
+            newAssertion.apply(this, [actual]);
           } else {
-            original.call(this);
+            originalAssertion.call(this);
           }
         };
       }
 
-      names.forEach(name =>
-        chai.Assertion.overwriteProperty(name, overwriteProperty)
+      propertyNames.forEach(propertyName =>
+        chai.Assertion.overwriteProperty(propertyName, overwriteProperty)
       );
     };
 
