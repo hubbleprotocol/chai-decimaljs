@@ -1,6 +1,6 @@
 {
   "name": "chai-bn",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-beta.0",
   "description": "Chai assertions for comparing arbitrary-precision integers using the bignumber.js library",
   "main": "chai-bn.js",
   "scripts": {
