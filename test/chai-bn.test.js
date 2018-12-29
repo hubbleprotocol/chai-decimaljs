@@ -14,15 +14,15 @@ describe('chai-bn', function () {
     return [
       function (a, b) {
         function_names.forEach(function_name => {
-          a.should.be.bignumber[function_name](b);
-          expect(a).to.be.bignumber[function_name](b);
+          a.should.be.bignumber.that[function_name](b);
+          expect(a).to.be.bignumber.that[function_name](b);
         });
       },
 
       function (a, b) {
         function_names.forEach(function_name => {
-          a.should.not.be.bignumber[function_name](b);
-          expect(a).to.not.be.bignumber[function_name](b);
+          a.should.not.be.bignumber.that[function_name](b);
+          expect(a).to.not.be.bignumber.that[function_name](b);
         });
       }
     ];
@@ -210,8 +210,8 @@ describe('chai-bn', function () {
 
       test_cases.forEach(([a, b]) => {
         tester(a, b);
-        a.should.be.bignumber.at.least(b);
-        expect(a).to.be.bignumber.at.least(b);
+        a.should.be.bignumber.that.is.at.least(b);
+        expect(a).to.be.bignumber.that.is.at.least(b);
       });
     });
 
@@ -238,8 +238,8 @@ describe('chai-bn', function () {
 
       test_cases.forEach(([a, b]) => {
         notTester(a, b);
-        a.should.not.be.bignumber.at.least(b);
-        expect(a).to.not.be.bignumber.at.least(b);
+        a.should.not.be.bignumber.that.is.at.least(b);
+        expect(a).to.not.be.bignumber.that.is.at.least(b);
       });
     });
 
@@ -348,8 +348,8 @@ describe('chai-bn', function () {
 
       test_cases.forEach(([a, b]) => {
         tester(a, b);
-        a.should.be.bignumber.at.most(b);
-        expect(a).to.be.bignumber.at.most(b);
+        a.should.be.bignumber.that.is.at.most(b);
+        expect(a).to.be.bignumber.that.is.at.most(b);
       });
     });
 
@@ -386,13 +386,13 @@ describe('chai-bn', function () {
 
   describe('negative', function () {
     const tester = function (a) {
-      a.should.be.bignumber.negative;
-      expect(a).to.be.bignumber.negative;
+      a.should.be.bignumber.that.is.negative;
+      expect(a).to.be.bignumber.that.is.negative;
     };
 
     const notTester = function (a) {
-      a.should.not.be.bignumber.negative;
-      expect(a).to.not.be.bignumber.negative;
+      a.should.not.be.bignumber.that.is.negative;
+      expect(a).to.not.be.bignumber.that.is.negative;
     };
 
     it('asserts negativity', function () {
@@ -437,13 +437,13 @@ describe('chai-bn', function () {
 
   describe('zero', function () {
     const tester = function (a) {
-      a.should.be.bignumber.zero;
-      expect(a).to.be.bignumber.zero;
+      a.should.be.bignumber.that.is.zero;
+      expect(a).to.be.bignumber.that.is.zero;
     };
 
     const notTester = function (a) {
-      a.should.not.be.bignumber.zero;
-      expect(a).to.not.be.bignumber.zero;
+      a.should.not.be.bignumber.that.is.zero;
+      expect(a).to.not.be.bignumber.that.is.zero;
     };
 
     it('asserts zeroness', function () {
