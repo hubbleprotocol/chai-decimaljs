@@ -46,16 +46,16 @@ Methods:
 const actual = new BN('100000000000000000').plus(new BN('1'));
 const expected = '100000000000000001';
 
-actual.should.be.bignumber.that.equals(expected);
-expect(actual).to.be.bignumber.that.is.at.most(expected);
-(new BN('1000')).should.be.bignumber.that.is.lessThan('2000');
+actual.should.be.a.bignumber.that.equals(expected);
+expect(actual).to.be.a.bignumber.that.is.at.most(expected);
+(new BN('1000')).should.be.a.bignumber.that.is.lessThan('2000');
 ```
 
 Properties:
 
 ```javascript
-(new BN('-100')).should.be.bignumber.that.is.negative;
-expect(new BN('1').sub(new BN('1'))).to.be.bignumber.that.is.zero;
+(new BN('-100')).should.be.a.bignumber.that.is.negative;
+expect(new BN('1').sub(new BN('1'))).to.be.a.bignumber.that.is.zero;
 ```
 
 Some `Chai` properties (e.g. the `that.is` chain) have no effect other than increasing readability, and can be dropped if less verbosity is desired.
