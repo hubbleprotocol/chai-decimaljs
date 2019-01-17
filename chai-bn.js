@@ -43,7 +43,7 @@ module.exports = function (BN) {
     // calling said function, we assert that the actual value is a BN, and attempt to convert all other arguments to BN.
     const overwriteMethods = function (methodNames, newAssertion) {
       function overwriteMethod (originalAssertion) {
-        return function (value, sarasa) {
+        return function () {
           if (utils.flag(this, 'bignumber')) {
             const actual = this._obj;
             assertIsBN(actual);
@@ -144,7 +144,7 @@ module.exports = function (BN) {
         `expected #{act} to be further than '${delta}' from #{exp}`,
         expected.toString(),
         actual.toString()
-      )
+      );
     });
 
     // BN.isNeg

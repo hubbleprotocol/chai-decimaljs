@@ -388,12 +388,12 @@ describe('chai-bn', function () {
     const tester = function (a, b, delta) {
       a.should.be.a.bignumber.closeTo(b, delta);
       expect(a).to.be.a.bignumber.closeTo(b, delta);
-    }
+    };
 
     const notTester = function (a, b, delta) {
       a.should.be.a.bignumber.not.closeTo(b, delta);
       expect(a).to.be.a.bignumber.not.closeTo(b, delta);
-    }
+    };
 
     it('asserts closeness', function () {
       const testCases = [
