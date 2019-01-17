@@ -40,17 +40,15 @@ module.exports = function (BN) {
     };
 
     // Overwrites the assertion performed by multiple methods (which should be aliases) with a new function. Prior to
-    // calling said function, we assert that the actual value is a BN, and attempt to convert the expected value.
+    // calling said function, we assert that the actual value is a BN, and attempt to convert all other arguments to BN.
     const overwriteMethods = function (methodNames, newAssertion) {
       function overwriteMethod (originalAssertion) {
-        return function (value) {
+        return function (value, sarasa) {
           if (utils.flag(this, 'bignumber')) {
             const actual = this._obj;
             assertIsBN(actual);
 
-            const expected = convert(value);
-
-            newAssertion.apply(this, [expected, actual]);
+            newAssertion.apply(this, [actual].concat([].slice.call(arguments).map(convert)));
           } else {
             originalAssertion.apply(this, arguments);
           }
@@ -84,7 +82,7 @@ module.exports = function (BN) {
     };
 
     // BN.eq
-    overwriteMethods(['equal', 'equals', 'eq'], function (expected, actual) {
+    overwriteMethods(['equal', 'equals', 'eq'], function (actual, expected) {
       this.assert(
         isEqualTo.bind(expected)(actual),
         'expected #{act} to equal #{exp}',
@@ -95,7 +93,7 @@ module.exports = function (BN) {
     });
 
     // BN.gt
-    overwriteMethods(['above', 'gt', 'greaterThan'], function (expected, actual) {
+    overwriteMethods(['above', 'gt', 'greaterThan'], function (actual, expected) {
       this.assert(
         isGreaterThan.bind(actual)(expected),
         'expected #{act} to be greater than #{exp}',
@@ -106,7 +104,7 @@ module.exports = function (BN) {
     });
 
     // BN.gte
-    overwriteMethods(['least', 'gte'], function (expected, actual) {
+    overwriteMethods(['least', 'gte'], function (actual, expected) {
       this.assert(
         isGreaterThanOrEqualTo.bind(actual)(expected),
         'expected #{act} to be greater than or equal to #{exp}',
@@ -117,7 +115,7 @@ module.exports = function (BN) {
     });
 
     // BN.lt
-    overwriteMethods(['below', 'lt', 'lessThan'], function (expected, actual) {
+    overwriteMethods(['below', 'lt', 'lessThan'], function (actual, expected) {
       this.assert(
         isLessThan.bind(actual)(expected),
         'expected #{act} to be less than #{exp}',
@@ -128,7 +126,7 @@ module.exports = function (BN) {
     });
 
     // BN.lte
-    overwriteMethods(['most', 'lte'], function (expected, actual) {
+    overwriteMethods(['most', 'lte'], function (actual, expected) {
       this.assert(
         isLessThanOrEqualTo.bind(actual)(expected),
         'expected #{act} to be less than or equal to #{exp}',
@@ -136,6 +134,17 @@ module.exports = function (BN) {
         expected.toString(),
         actual.toString()
       );
+    });
+
+    // Equality with tolerance, using gte and lte
+    overwriteMethods(['closeTo'], function (actual, expected, delta) {
+      this.assert(
+        isGreaterThanOrEqualTo.bind(actual)(expected.sub(delta)) && isLessThanOrEqualTo.bind(actual)(expected.add(delta)),
+        `expected #{act} to be within '${delta}' of #{exp}`,
+        `expected #{act} to be further than '${delta}' from #{exp}`,
+        expected.toString(),
+        actual.toString()
+      )
     });
 
     // BN.isNeg

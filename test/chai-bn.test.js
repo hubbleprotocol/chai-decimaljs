@@ -384,6 +384,62 @@ describe('chai-bn', function () {
     argTypeChecker(tester, notTester);
   });
 
+  describe('closeTo', function () {
+    const tester = function (a, b, delta) {
+      a.should.be.a.bignumber.closeTo(b, delta);
+      expect(a).to.be.a.bignumber.closeTo(b, delta);
+    }
+
+    const notTester = function (a, b, delta) {
+      a.should.be.a.bignumber.not.closeTo(b, delta);
+      expect(a).to.be.a.bignumber.not.closeTo(b, delta);
+    }
+
+    it('asserts closeness', function () {
+      const testCases = [
+        [new BN('15'), '15', '0'],
+        [new BN('15'), '10', '5'],
+        [new BN('15'), '20', '5'],
+        [new BN('-15'), '-15', '0'],
+        [new BN('-15'), '-10', '5'],
+        [new BN('-15'), '-20', '5'],
+        [new BN('123456789123456789'), '123456789123456789', '0'],
+        [new BN('123456789123456789'), '123456789123456780', '9'],
+        [new BN('123456789123456789'), '123456789123456798', '9'],
+        [new BN('-123456789123456789'), '-123456789123456789', '0'],
+        [new BN('-123456789123456789'), '-123456789123456780', '9'],
+        [new BN('-123456789123456789'), '-123456789123456798', '9'],
+      ];
+
+      testCases.forEach(([a, b, delta]) => {
+        tester(a, b, delta);
+        (() => notTester(a, b, delta)).should.throw;
+      });
+    });
+
+    it('asserts not closeness', function () {
+      const testCases = [
+        [new BN('15'), '14', '0'],
+        [new BN('15'), '9', '5'],
+        [new BN('15'), '21', '5'],
+        [new BN('-15'), '-16', '0'],
+        [new BN('-15'), '-9', '5'],
+        [new BN('-15'), '-21', '5'],
+        [new BN('123456789123456789'), '123456789123456788', '0'],
+        [new BN('123456789123456789'), '123456789123456779', '9'],
+        [new BN('123456789123456789'), '123456789123456799', '9'],
+        [new BN('-123456789123456789'), '-123456789123456788', '0'],
+        [new BN('-123456789123456789'), '-123456789123456779', '9'],
+        [new BN('-123456789123456789'), '-123456789123456799', '9'],
+      ];
+
+      testCases.forEach(([a, b, delta]) => {
+        notTester(a, b, delta);
+        (() => tester(a, b, delta)).should.throw;
+      });
+    });
+  });
+
   describe('negative', function () {
     const tester = function (a) {
       a.should.be.a.bignumber.that.is.negative;
