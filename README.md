@@ -35,7 +35,7 @@ A set of additional assertion properties is also provided:
 - negative
 - zero
 
-Actual values (i.e. the values being asserted) **must** be instances of `BN`. Expected values (i.e. the values the actual value is expected to match) may be instances of either `BN` or `string` which can be converted into a valid number. This is a key difference with [chai-bignumber](https://github.com/asmarques/chai-bignumber), which automatically converts JavaScript numbers and strings to `BigNumber` instances for both actual and expected values.
+Both actual values (the values being asserted) and expected values (the values the actual value is expected to match) can be either instances of `BN`, or strings which can be converted into a valid number. This is a key difference with [chai-bignumber](https://github.com/asmarques/chai-bignumber), which automatically converts JavaScript numbers to `BigNumber` instances for both actual and expected values.
 
 Only BDD style (`expect` or `should`) assertions are supported.
 

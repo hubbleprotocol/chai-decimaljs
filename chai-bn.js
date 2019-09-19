@@ -30,23 +30,13 @@ module.exports = function (BN) {
       }
     };
 
-    const assertIsBN = function (value) {
-      if (!isBN(value)) {
-        new chai.Assertion(value).assert(
-          false,
-          'expected #{act} to be an instance of BN'
-        );
-      }
-    };
-
     // Overwrites the assertion performed by multiple methods (which should be aliases) with a new function. Prior to
     // calling said function, we assert that the actual value is a BN, and attempt to convert all other arguments to BN.
     const overwriteMethods = function (methodNames, newAssertion) {
       function overwriteMethod (originalAssertion) {
         return function () {
           if (utils.flag(this, 'bignumber')) {
-            const actual = this._obj;
-            assertIsBN(actual);
+            const actual = convert(this._obj);
 
             newAssertion.apply(this, [actual].concat([].slice.call(arguments).map(convert)));
           } else {
@@ -66,8 +56,7 @@ module.exports = function (BN) {
       function overwriteProperty (originalAssertion) {
         return function () {
           if (utils.flag(this, 'bignumber')) {
-            const actual = this._obj;
-            assertIsBN(actual);
+            const actual = convert(this._obj);
 
             newAssertion.apply(this, [actual]);
           } else {
