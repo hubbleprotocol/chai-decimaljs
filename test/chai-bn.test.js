@@ -7,22 +7,34 @@ chai.use(require('../chai-bn')(BN));
 chai.config.includeStack = true;
 
 describe('chai-bn', function () {
+  const customMessage = 'Custom message';
+  const customMessageRegex = /^Custom message:/;
   const actualMatchInvalidError = /to be an instance of BN/;
   const expectedMatchInvalidError = /to be an instance of BN or string/;
 
   const testerGenerator = function (functionNames) {
     return [
-      function (a, b) {
+      function (a, b, msg) {
         functionNames.forEach(functionName => {
-          a.should.be.a.bignumber.that[functionName](b);
-          expect(a).to.be.a.bignumber.that[functionName](b);
+          if (msg) {
+            a.should.be.a.bignumber.that[functionName](b, msg);
+            expect(a).to.be.a.bignumber.that[functionName](b, msg);
+          } else {
+            a.should.be.a.bignumber.that[functionName](b);
+            expect(a).to.be.a.bignumber.that[functionName](b);
+          }
         });
       },
 
-      function (a, b) {
+      function (a, b, msg) {
         functionNames.forEach(functionName => {
-          a.should.not.be.a.bignumber.that[functionName](b);
-          expect(a).to.not.be.a.bignumber.that[functionName](b);
+          if (msg) {
+            a.should.not.be.a.bignumber.that[functionName](b, msg);
+            expect(a).to.not.be.a.bignumber.that[functionName](b, msg);
+          } else {
+            a.should.not.be.a.bignumber.that[functionName](b);
+            expect(a).to.not.be.a.bignumber.that[functionName](b);
+          }
         });
       }
     ];
@@ -60,39 +72,50 @@ describe('chai-bn', function () {
 
   const toBNCombinations = function (a, b) {
     return [
-      [ a, b ],
-      [ new BN(a), b],
-      [ a, new BN(b) ],
-      [ new BN(a), new BN(b) ],
+      [a, b],
+      [new BN(a), b],
+      [a, new BN(b)],
+      [new BN(a), new BN(b)],
     ];
   };
 
   describe('equal/equals/eq', function () {
     const [tester, notTester] = testerGenerator(['equal', 'equals', 'eq']);
-
+    const equalTestCases = [
+      ...toBNCombinations('10', '10'),
+      ...toBNCombinations('-10', '-10'),
+      ...toBNCombinations('123456789123456789123456789', '123456789123456789123456789'),
+      ...toBNCombinations('-123456789123456789123456789', '-123456789123456789123456789'),
+    ];
+    const notEqualTestCases = [
+      ...toBNCombinations('10', '9'),
+      ...toBNCombinations('-10', '-9'),
+      ...toBNCombinations('123456789123456789123456789', '123456789123456789123456788'),
+      ...toBNCombinations('-123456789123456789123456789', '-123456789123456789123456788'),
+    ];
     it('asserts equality', function () {
-      const testCases = [
-        ...toBNCombinations('10', '10'),
-        ...toBNCombinations('-10', '-10'),
-        ...toBNCombinations('123456789123456789123456789', '123456789123456789123456789'),
-        ...toBNCombinations('-123456789123456789123456789', '-123456789123456789123456789'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      equalTestCases.forEach(([a, b]) => {
         tester(a, b);
       });
     });
 
     it('asserts inequality', function () {
-      const testCases = [
-        ...toBNCombinations('10', '9'),
-        ...toBNCombinations('-10', '-9'),
-        ...toBNCombinations('123456789123456789123456789', '123456789123456789123456788'),
-        ...toBNCombinations('-123456789123456789123456789', '-123456789123456789123456788'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      notEqualTestCases.forEach(([a, b]) => {
         notTester(a, b);
+      });
+    });
+
+    it('equal fails on inequality', function () {
+      notEqualTestCases.forEach(([a, b]) => {
+        (() => tester(a, b)).should.throw();
+        (() => tester(a, b, customMessage)).should.throw(customMessageRegex);
+      });
+    });
+
+    it('not equal fails on equality', function () {
+      equalTestCases.forEach(([a, b]) => {
+        (() => notTester(a, b)).should.throw();
+        (() => notTester(a, b, 'Custom message')).should.throw(customMessageRegex);
       });
     });
 
@@ -101,38 +124,51 @@ describe('chai-bn', function () {
 
   describe('above/gt/greaterThan', function () {
     const [tester, notTester] = testerGenerator(['above', 'gt', 'greaterThan']);
+    const aboveTestCases = [
+      ...toBNCombinations('15', '10'),
+      ...toBNCombinations('15', '-10'),
+      ...toBNCombinations('-10', '-15'),
+
+      ...toBNCombinations('123456789123456789', '123456789123'),
+      ...toBNCombinations('123456789123456789', '-123456789123'),
+      ...toBNCombinations('-123456789123', '-123456789123456789'),
+    ];
+
+    const notAbovetestCases = [
+      ...toBNCombinations('10', '15'),
+      ...toBNCombinations('-10', '15'),
+      ...toBNCombinations('-15', '-10'),
+      ...toBNCombinations('-15', '15'),
+      ...toBNCombinations('-15', '-15'),
+
+      ...toBNCombinations('123456789123', '123456789123456789'),
+      ...toBNCombinations('-123456789123', '123456789123456789'),
+      ...toBNCombinations('-123456789123456789', '-123456789123'),
+    ];
 
     it('asserts aboveness', function () {
-      const testCases = [
-        ...toBNCombinations('15', '10'),
-        ...toBNCombinations('15', '-10'),
-        ...toBNCombinations('-10', '-15'),
-
-        ...toBNCombinations('123456789123456789', '123456789123'),
-        ...toBNCombinations('123456789123456789', '-123456789123'),
-        ...toBNCombinations('-123456789123', '-123456789123456789'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      aboveTestCases.forEach(([a, b]) => {
         tester(a, b);
       });
     });
 
     it('asserts unaboveness', function () {
-      const testCases = [
-        ...toBNCombinations('10', '15'),
-        ...toBNCombinations('-10', '15'),
-        ...toBNCombinations('-15', '-10'),
-        ...toBNCombinations('-15', '15'),
-        ...toBNCombinations('-15', '-15'),
-
-        ...toBNCombinations('123456789123', '123456789123456789'),
-        ...toBNCombinations('-123456789123', '123456789123456789'),
-        ...toBNCombinations('-123456789123456789', '-123456789123'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      notAbovetestCases.forEach(([a, b]) => {
         notTester(a, b);
+      });
+    });
+
+    it('above fails on unaboveness', function () {
+      notAbovetestCases.forEach(([a, b]) => {
+        (() => tester(a, b)).should.throw();
+        (() => tester(a, b, customMessage)).should.throw(customMessageRegex);
+      });
+    });
+
+    it('not above fails on aboveness', function () {
+      aboveTestCases.forEach(([a, b]) => {
+        (() => notTester(a, b)).should.throw();
+        (() => notTester(a, b, customMessage)).should.throw(customMessageRegex);
       });
     });
 
@@ -141,23 +177,32 @@ describe('chai-bn', function () {
 
   describe('least/gte', function () {
     const [tester, notTester] = testerGenerator(['gte']);
+    const atLeastTestCases = [
+      ...toBNCombinations('15', '15'),
+      ...toBNCombinations('15', '-10'),
+      ...toBNCombinations('-10', '-15'),
+      ...toBNCombinations('15', '15'),
+      ...toBNCombinations('-15', '-15'),
+
+      ...toBNCombinations('123456789123456789', '123456789123456789'),
+      ...toBNCombinations('123456789123456789', '-123456789123'),
+      ...toBNCombinations('-123456789123', '-123456789123456789'),
+      ...toBNCombinations('123456789123456789', '123456789123456789'),
+      ...toBNCombinations('-123456789123456789', '-123456789123456789'),
+    ];
+
+    const notAtLeastTestCases = [
+      ...toBNCombinations('10', '15'),
+      ...toBNCombinations('-10', '15'),
+      ...toBNCombinations('-15', '-10'),
+
+      ...toBNCombinations('123456789123', '123456789123456789'),
+      ...toBNCombinations('-123456789123', '123456789123456789'),
+      ...toBNCombinations('-123456789123456789', '-123456789123'),
+    ];
 
     it('asserts at least', function () {
-      const testCases = [
-        ...toBNCombinations('15', '15'),
-        ...toBNCombinations('15', '-10'),
-        ...toBNCombinations('-10', '-15'),
-        ...toBNCombinations('15', '15'),
-        ...toBNCombinations('-15', '-15'),
-
-        ...toBNCombinations('123456789123456789', '123456789123456789'),
-        ...toBNCombinations('123456789123456789', '-123456789123'),
-        ...toBNCombinations('-123456789123', '-123456789123456789'),
-        ...toBNCombinations('123456789123456789', '123456789123456789'),
-        ...toBNCombinations('-123456789123456789', '-123456789123456789'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      atLeastTestCases.forEach(([a, b]) => {
         tester(a, b);
         a.should.be.a.bignumber.that.is.at.least(b);
         expect(a).to.be.a.bignumber.that.is.at.least(b);
@@ -165,20 +210,24 @@ describe('chai-bn', function () {
     });
 
     it('asserts not at least', function () {
-      const testCases = [
-        ...toBNCombinations('10', '15'),
-        ...toBNCombinations('-10', '15'),
-        ...toBNCombinations('-15', '-10'),
-
-        ...toBNCombinations('123456789123', '123456789123456789'),
-        ...toBNCombinations('-123456789123', '123456789123456789'),
-        ...toBNCombinations('-123456789123456789', '-123456789123'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      notAtLeastTestCases.forEach(([a, b]) => {
         notTester(a, b);
         a.should.not.be.a.bignumber.that.is.at.least(b);
         expect(a).to.not.be.a.bignumber.that.is.at.least(b);
+      });
+    });
+
+    it('at least fails fails on unaboveness', function () {
+      notAtLeastTestCases.forEach(([a, b]) => {
+        (() => tester(a, b)).should.throw();
+        (() => tester(a, b, customMessage)).should.throw(customMessageRegex);
+      });
+    });
+
+    it('at most fails on aboveness', function () {
+      atLeastTestCases.forEach(([a, b]) => {
+        (() => notTester(a, b)).should.throw();
+        (() => notTester(a, b, customMessage)).should.throw(customMessageRegex);
       });
     });
 
@@ -187,40 +236,53 @@ describe('chai-bn', function () {
 
   describe('below/lt/lessThan', function () {
     const [tester, notTester] = testerGenerator(['below', 'lt', 'lessThan']);
+    const belowTestCases = [
+      ...toBNCombinations('10', '15'),
+      ...toBNCombinations('-10', '15'),
+      ...toBNCombinations('-15', '-10'),
+
+      ...toBNCombinations('123456789123', '123456789123456789'),
+      ...toBNCombinations('-123456789123', '123456789123456789'),
+      ...toBNCombinations('-123456789123456789', '-123456789123'),
+    ];
+
+    const notBelowTestCases = [
+      ...toBNCombinations('15', '10'),
+      ...toBNCombinations('15', '-10'),
+      ...toBNCombinations('-10', '-15'),
+      ...toBNCombinations('15', '15'),
+      ...toBNCombinations('-15', '-15'),
+
+      ...toBNCombinations('123456789123456789', '123456789123'),
+      ...toBNCombinations('123456789123456789', '-123456789123'),
+      ...toBNCombinations('-123456789123', '-123456789123456789'),
+      ...toBNCombinations('123456789123456789', '123456789123456789'),
+      ...toBNCombinations('-123456789123456789', '-123456789123456789'),
+    ];
 
     it('asserts belowness', function () {
-      const testCases = [
-        ...toBNCombinations('10', '15'),
-        ...toBNCombinations('-10', '15'),
-        ...toBNCombinations('-15', '-10'),
-
-        ...toBNCombinations('123456789123', '123456789123456789'),
-        ...toBNCombinations('-123456789123', '123456789123456789'),
-        ...toBNCombinations('-123456789123456789', '-123456789123'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      belowTestCases.forEach(([a, b]) => {
         tester(a, b);
       });
     });
 
     it('asserts unbelowness', function () {
-      const testCases = [
-        ...toBNCombinations('15', '10'),
-        ...toBNCombinations('15', '-10'),
-        ...toBNCombinations('-10', '-15'),
-        ...toBNCombinations('15', '15'),
-        ...toBNCombinations('-15', '-15'),
-
-        ...toBNCombinations('123456789123456789', '123456789123'),
-        ...toBNCombinations('123456789123456789', '-123456789123'),
-        ...toBNCombinations('-123456789123', '-123456789123456789'),
-        ...toBNCombinations('123456789123456789', '123456789123456789'),
-        ...toBNCombinations('-123456789123456789', '-123456789123456789'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      notBelowTestCases.forEach(([a, b]) => {
         notTester(a, b);
+      });
+    });
+
+    it('below fails on unbelowness', function () {
+      notBelowTestCases.forEach(([a, b]) => {
+        (() => tester(a, b)).should.throw();
+        (() => tester(a, b, customMessage)).should.throw(customMessageRegex);
+      });
+    });
+
+    it('not below fails on belowness', function () {
+      belowTestCases.forEach(([a, b]) => {
+        (() => notTester(a, b)).should.throw();
+        (() => notTester(a, b, customMessage)).should.throw(customMessageRegex);
       });
     });
 
@@ -229,23 +291,31 @@ describe('chai-bn', function () {
 
   describe('most/lte', function () {
     const [tester, notTester] = testerGenerator(['lte']);
+    const atMostTestCases = [
+      ...toBNCombinations('10', '15'),
+      ...toBNCombinations('-10', '15'),
+      ...toBNCombinations('-15', '-10'),
+      ...toBNCombinations('15', '15'),
+      ...toBNCombinations('-15', '-15'),
+
+      ...toBNCombinations('123456789123', '123456789123456789'),
+      ...toBNCombinations('-123456789123', '123456789123456789'),
+      ...toBNCombinations('-123456789123456789', '-123456789123'),
+      ...toBNCombinations('123456789123456789', '123456789123456789'),
+      ...toBNCombinations('-123456789123456789', '-123456789123456789'),
+    ];
+    const notAtMostTestCases = [
+      ...toBNCombinations('15', '10'),
+      ...toBNCombinations('15', '-10'),
+      ...toBNCombinations('-10', '-15'),
+
+      ...toBNCombinations('123456789123456789', '123456789123'),
+      ...toBNCombinations('123456789123456789', '-123456789123'),
+      ...toBNCombinations('-123456789123', '-123456789123456789'),
+    ];
 
     it('asserts at most', function () {
-      const testCases = [
-        ...toBNCombinations('10', '15'),
-        ...toBNCombinations('-10', '15'),
-        ...toBNCombinations('-15', '-10'),
-        ...toBNCombinations('15', '15'),
-        ...toBNCombinations('-15', '-15'),
-
-        ...toBNCombinations('123456789123', '123456789123456789'),
-        ...toBNCombinations('-123456789123', '123456789123456789'),
-        ...toBNCombinations('-123456789123456789', '-123456789123'),
-        ...toBNCombinations('123456789123456789', '123456789123456789'),
-        ...toBNCombinations('-123456789123456789', '-123456789123456789'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      atMostTestCases.forEach(([a, b]) => {
         tester(a, b);
         a.should.be.a.bignumber.that.is.at.most(b);
         expect(a).to.be.a.bignumber.that.is.at.most(b);
@@ -253,20 +323,28 @@ describe('chai-bn', function () {
     });
 
     it('asserts not at most', function () {
-      const testCases = [
-        ...toBNCombinations('15', '10'),
-        ...toBNCombinations('15', '-10'),
-        ...toBNCombinations('-10', '-15'),
-
-        ...toBNCombinations('123456789123456789', '123456789123'),
-        ...toBNCombinations('123456789123456789', '-123456789123'),
-        ...toBNCombinations('-123456789123', '-123456789123456789'),
-      ];
-
-      testCases.forEach(([a, b]) => {
+      notAtMostTestCases.forEach(([a, b]) => {
         notTester(a, b);
         a.should.not.be.a.bignumber.at.most(b);
         expect(a).to.not.be.a.bignumber.at.most(b);
+      });
+    });
+
+    it('at most fails on not at most input', function () {
+      notAtMostTestCases.forEach(([a, b]) => {
+        (() => tester(a, b)).should.throw();
+        (() => tester(a, b, customMessage)).should.throw(customMessageRegex);
+        (() => a.should.be.a.bignumber.at.most(b, customMessage)).should.throw(customMessageRegex);
+        (() => expect(a).to.be.a.bignumber.at.most(b, customMessage)).should.throw(customMessageRegex);
+      });
+    });
+
+    it('not at most fails on at most input', function () {
+      atMostTestCases.forEach(([a, b]) => {
+        (() => notTester(a, b)).should.throw();
+        (() => notTester(a, b, customMessage)).should.throw(customMessageRegex);
+        (() => a.should.not.be.a.bignumber.at.most(b, customMessage)).should.throw(customMessageRegex);
+        (() => expect(a).to.not.be.a.bignumber.at.most(b, customMessage)).should.throw(customMessageRegex);
       });
     });
 
@@ -274,57 +352,69 @@ describe('chai-bn', function () {
   });
 
   describe('closeTo', function () {
-    const tester = function (a, b, delta) {
-      a.should.be.a.bignumber.closeTo(b, delta);
-      expect(a).to.be.a.bignumber.closeTo(b, delta);
+    const tester = function (a, b, delta, customMessage) {
+      a.should.be.a.bignumber.closeTo(b, delta, customMessage);
+      expect(a).to.be.a.bignumber.closeTo(b, delta, customMessage);
     };
 
-    const notTester = function (a, b, delta) {
-      a.should.be.a.bignumber.not.closeTo(b, delta);
-      expect(a).to.be.a.bignumber.not.closeTo(b, delta);
+    const notTester = function (a, b, delta, customMessage) {
+      a.should.be.a.bignumber.not.closeTo(b, delta, customMessage);
+      expect(a).to.be.a.bignumber.not.closeTo(b, delta, customMessage);
     };
+    const closeTestCases = [
+      [new BN('15'), '15', '0'],
+      [new BN('15'), '10', '5'],
+      [new BN('15'), '20', '5'],
+      [new BN('-15'), '-15', '0'],
+      [new BN('-15'), '-10', '5'],
+      [new BN('-15'), '-20', '5'],
+      [new BN('123456789123456789'), '123456789123456789', '0'],
+      [new BN('123456789123456789'), '123456789123456780', '9'],
+      [new BN('123456789123456789'), '123456789123456798', '9'],
+      [new BN('-123456789123456789'), '-123456789123456789', '0'],
+      [new BN('-123456789123456789'), '-123456789123456780', '9'],
+      [new BN('-123456789123456789'), '-123456789123456798', '9'],
+    ];
+    const notCloseTestCases = [
+      [new BN('15'), '14', '0'],
+      [new BN('15'), '9', '5'],
+      [new BN('15'), '21', '5'],
+      [new BN('-15'), '-16', '0'],
+      [new BN('-15'), '-9', '5'],
+      [new BN('-15'), '-21', '5'],
+      [new BN('123456789123456789'), '123456789123456788', '0'],
+      [new BN('123456789123456789'), '123456789123456779', '9'],
+      [new BN('123456789123456789'), '123456789123456799', '9'],
+      [new BN('-123456789123456789'), '-123456789123456788', '0'],
+      [new BN('-123456789123456789'), '-123456789123456779', '9'],
+      [new BN('-123456789123456789'), '-123456789123456799', '9'],
+    ];
 
     it('asserts closeness', function () {
-      const testCases = [
-        [new BN('15'), '15', '0'],
-        [new BN('15'), '10', '5'],
-        [new BN('15'), '20', '5'],
-        [new BN('-15'), '-15', '0'],
-        [new BN('-15'), '-10', '5'],
-        [new BN('-15'), '-20', '5'],
-        [new BN('123456789123456789'), '123456789123456789', '0'],
-        [new BN('123456789123456789'), '123456789123456780', '9'],
-        [new BN('123456789123456789'), '123456789123456798', '9'],
-        [new BN('-123456789123456789'), '-123456789123456789', '0'],
-        [new BN('-123456789123456789'), '-123456789123456780', '9'],
-        [new BN('-123456789123456789'), '-123456789123456798', '9'],
-      ];
-
-      testCases.forEach(([a, b, delta]) => {
+      closeTestCases.forEach(([a, b, delta]) => {
         tester(a, b, delta);
         (() => notTester(a, b, delta)).should.throw;
       });
     });
 
     it('asserts not closeness', function () {
-      const testCases = [
-        [new BN('15'), '14', '0'],
-        [new BN('15'), '9', '5'],
-        [new BN('15'), '21', '5'],
-        [new BN('-15'), '-16', '0'],
-        [new BN('-15'), '-9', '5'],
-        [new BN('-15'), '-21', '5'],
-        [new BN('123456789123456789'), '123456789123456788', '0'],
-        [new BN('123456789123456789'), '123456789123456779', '9'],
-        [new BN('123456789123456789'), '123456789123456799', '9'],
-        [new BN('-123456789123456789'), '-123456789123456788', '0'],
-        [new BN('-123456789123456789'), '-123456789123456779', '9'],
-        [new BN('-123456789123456789'), '-123456789123456799', '9'],
-      ];
-
-      testCases.forEach(([a, b, delta]) => {
+      notCloseTestCases.forEach(([a, b, delta]) => {
         notTester(a, b, delta);
         (() => tester(a, b, delta)).should.throw;
+      });
+    });
+
+    it('close fails on not closeness', function () {
+      notCloseTestCases.forEach(([a, b, delta]) => {
+        (() => tester(a, b, delta)).should.throw();
+        (() => tester(a, b, delta, customMessage)).should.throw(customMessageRegex);
+      });
+    });
+
+    it('not close fails on closeness', function () {
+      closeTestCases.forEach(([a, b, delta]) => {
+        (() => notTester(a, b, delta)).should.throw();
+        (() => notTester(a, b, delta, customMessage)).should.throw(customMessageRegex);
       });
     });
   });
