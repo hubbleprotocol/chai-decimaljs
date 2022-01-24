@@ -1,27 +1,27 @@
-const BN = require('bn.js');
 const chai = require('chai');
+const Decimal = require('decimal.js');
 const expect = chai.expect;
 
 chai.should();
-chai.use(require('../chai-bn')(BN));
+chai.use(require('../chai-decimal')(Decimal));
 chai.config.includeStack = true;
 
-describe('chai-bn', function () {
+describe('chai-decimal', function () {
   const customMessage = 'Custom message';
   const customMessageRegex = /^Custom message:/;
-  const actualMatchInvalidError = /to be an instance of BN/;
-  const expectedMatchInvalidError = /to be an instance of BN or string/;
+  const actualMatchInvalidError = /to be an instance of Decimal/;
+  const expectedMatchInvalidError = /to be an instance of Decimal or string/;
 
   const testerGenerator = function (functionNames) {
     return [
       function (a, b, msg) {
         functionNames.forEach(functionName => {
           if (msg) {
-            a.should.be.a.bignumber.that[functionName](b, msg);
-            expect(a).to.be.a.bignumber.that[functionName](b, msg);
+            a.should.be.a.decimal.that[functionName](b, msg);
+            expect(a).to.be.a.decimal.that[functionName](b, msg);
           } else {
-            a.should.be.a.bignumber.that[functionName](b);
-            expect(a).to.be.a.bignumber.that[functionName](b);
+            a.should.be.a.decimal.that[functionName](b);
+            expect(a).to.be.a.decimal.that[functionName](b);
           }
         });
       },
@@ -29,11 +29,11 @@ describe('chai-bn', function () {
       function (a, b, msg) {
         functionNames.forEach(functionName => {
           if (msg) {
-            a.should.not.be.a.bignumber.that[functionName](b, msg);
-            expect(a).to.not.be.a.bignumber.that[functionName](b, msg);
+            a.should.not.be.a.decimal.that[functionName](b, msg);
+            expect(a).to.not.be.a.decimal.that[functionName](b, msg);
           } else {
-            a.should.not.be.a.bignumber.that[functionName](b);
-            expect(a).to.not.be.a.bignumber.that[functionName](b);
+            a.should.not.be.a.decimal.that[functionName](b);
+            expect(a).to.not.be.a.decimal.that[functionName](b);
           }
         });
       }
@@ -41,7 +41,7 @@ describe('chai-bn', function () {
   };
 
   const argTypeChecker = function (tester, notTester) {
-    it('fails when first argument is not BN or string', function () {
+    it('fails when first argument is not Decimal or string', function () {
       const testCases = [
         [10, '10'],
         [-10, '-10'],
@@ -55,12 +55,12 @@ describe('chai-bn', function () {
       });
     });
 
-    it('fails when second argument is not BN or string', function () {
+    it('fails when second argument is not Decimal or string', function () {
       const testCases = [
-        [new BN('10'), 10],
-        [new BN('-10'), -10],
-        [new BN('123456789123456789123456789'), 123456789123456789123456789],
-        [new BN('-123456789123456789123456789'), -123456789123456789123456789],
+        [new Decimal('10'), 10],
+        [new Decimal('-10'), -10],
+        [new Decimal('123456789123456789123456789'), 123456789123456789123456789],
+        [new Decimal('-123456789123456789123456789'), -123456789123456789123456789],
       ];
 
       testCases.forEach(([a, b]) => {
@@ -70,28 +70,28 @@ describe('chai-bn', function () {
     });
   };
 
-  const toBNCombinations = function (a, b) {
+  const toDecimalCombinations = function (a, b) {
     return [
       [a, b],
-      [new BN(a), b],
-      [a, new BN(b)],
-      [new BN(a), new BN(b)],
+      [new Decimal(a), b],
+      [a, new Decimal(b)],
+      [new Decimal(a), new Decimal(b)],
     ];
   };
 
   describe('equal/equals/eq', function () {
     const [tester, notTester] = testerGenerator(['equal', 'equals', 'eq']);
     const equalTestCases = [
-      ...toBNCombinations('10', '10'),
-      ...toBNCombinations('-10', '-10'),
-      ...toBNCombinations('123456789123456789123456789', '123456789123456789123456789'),
-      ...toBNCombinations('-123456789123456789123456789', '-123456789123456789123456789'),
+      ...toDecimalCombinations('10', '10'),
+      ...toDecimalCombinations('-10', '-10'),
+      ...toDecimalCombinations('123456789123456789123456789', '123456789123456789123456789'),
+      ...toDecimalCombinations('-123456789123456789123456789', '-123456789123456789123456789'),
     ];
     const notEqualTestCases = [
-      ...toBNCombinations('10', '9'),
-      ...toBNCombinations('-10', '-9'),
-      ...toBNCombinations('123456789123456789123456789', '123456789123456789123456788'),
-      ...toBNCombinations('-123456789123456789123456789', '-123456789123456789123456788'),
+      ...toDecimalCombinations('10', '9'),
+      ...toDecimalCombinations('-10', '-9'),
+      ...toDecimalCombinations('123456789123456789123456789', '123456789123456789123456788'),
+      ...toDecimalCombinations('-123456789123456789123456789', '-123456789123456789123456788'),
     ];
     it('asserts equality', function () {
       equalTestCases.forEach(([a, b]) => {
@@ -125,25 +125,25 @@ describe('chai-bn', function () {
   describe('above/gt/greaterThan', function () {
     const [tester, notTester] = testerGenerator(['above', 'gt', 'greaterThan']);
     const aboveTestCases = [
-      ...toBNCombinations('15', '10'),
-      ...toBNCombinations('15', '-10'),
-      ...toBNCombinations('-10', '-15'),
+      ...toDecimalCombinations('15', '10'),
+      ...toDecimalCombinations('15', '-10'),
+      ...toDecimalCombinations('-10', '-15'),
 
-      ...toBNCombinations('123456789123456789', '123456789123'),
-      ...toBNCombinations('123456789123456789', '-123456789123'),
-      ...toBNCombinations('-123456789123', '-123456789123456789'),
+      ...toDecimalCombinations('123456789123456789', '123456789123'),
+      ...toDecimalCombinations('123456789123456789', '-123456789123'),
+      ...toDecimalCombinations('-123456789123', '-123456789123456789'),
     ];
 
     const notAbovetestCases = [
-      ...toBNCombinations('10', '15'),
-      ...toBNCombinations('-10', '15'),
-      ...toBNCombinations('-15', '-10'),
-      ...toBNCombinations('-15', '15'),
-      ...toBNCombinations('-15', '-15'),
+      ...toDecimalCombinations('10', '15'),
+      ...toDecimalCombinations('-10', '15'),
+      ...toDecimalCombinations('-15', '-10'),
+      ...toDecimalCombinations('-15', '15'),
+      ...toDecimalCombinations('-15', '-15'),
 
-      ...toBNCombinations('123456789123', '123456789123456789'),
-      ...toBNCombinations('-123456789123', '123456789123456789'),
-      ...toBNCombinations('-123456789123456789', '-123456789123'),
+      ...toDecimalCombinations('123456789123', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123456789', '-123456789123'),
     ];
 
     it('asserts aboveness', function () {
@@ -178,42 +178,42 @@ describe('chai-bn', function () {
   describe('least/gte', function () {
     const [tester, notTester] = testerGenerator(['gte']);
     const atLeastTestCases = [
-      ...toBNCombinations('15', '15'),
-      ...toBNCombinations('15', '-10'),
-      ...toBNCombinations('-10', '-15'),
-      ...toBNCombinations('15', '15'),
-      ...toBNCombinations('-15', '-15'),
+      ...toDecimalCombinations('15', '15'),
+      ...toDecimalCombinations('15', '-10'),
+      ...toDecimalCombinations('-10', '-15'),
+      ...toDecimalCombinations('15', '15'),
+      ...toDecimalCombinations('-15', '-15'),
 
-      ...toBNCombinations('123456789123456789', '123456789123456789'),
-      ...toBNCombinations('123456789123456789', '-123456789123'),
-      ...toBNCombinations('-123456789123', '-123456789123456789'),
-      ...toBNCombinations('123456789123456789', '123456789123456789'),
-      ...toBNCombinations('-123456789123456789', '-123456789123456789'),
+      ...toDecimalCombinations('123456789123456789', '123456789123456789'),
+      ...toDecimalCombinations('123456789123456789', '-123456789123'),
+      ...toDecimalCombinations('-123456789123', '-123456789123456789'),
+      ...toDecimalCombinations('123456789123456789', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123456789', '-123456789123456789'),
     ];
 
     const notAtLeastTestCases = [
-      ...toBNCombinations('10', '15'),
-      ...toBNCombinations('-10', '15'),
-      ...toBNCombinations('-15', '-10'),
+      ...toDecimalCombinations('10', '15'),
+      ...toDecimalCombinations('-10', '15'),
+      ...toDecimalCombinations('-15', '-10'),
 
-      ...toBNCombinations('123456789123', '123456789123456789'),
-      ...toBNCombinations('-123456789123', '123456789123456789'),
-      ...toBNCombinations('-123456789123456789', '-123456789123'),
+      ...toDecimalCombinations('123456789123', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123456789', '-123456789123'),
     ];
 
     it('asserts at least', function () {
       atLeastTestCases.forEach(([a, b]) => {
         tester(a, b);
-        a.should.be.a.bignumber.that.is.at.least(b);
-        expect(a).to.be.a.bignumber.that.is.at.least(b);
+        a.should.be.a.decimal.that.is.at.least(b);
+        expect(a).to.be.a.decimal.that.is.at.least(b);
       });
     });
 
     it('asserts not at least', function () {
       notAtLeastTestCases.forEach(([a, b]) => {
         notTester(a, b);
-        a.should.not.be.a.bignumber.that.is.at.least(b);
-        expect(a).to.not.be.a.bignumber.that.is.at.least(b);
+        a.should.not.be.a.decimal.that.is.at.least(b);
+        expect(a).to.not.be.a.decimal.that.is.at.least(b);
       });
     });
 
@@ -237,27 +237,27 @@ describe('chai-bn', function () {
   describe('below/lt/lessThan', function () {
     const [tester, notTester] = testerGenerator(['below', 'lt', 'lessThan']);
     const belowTestCases = [
-      ...toBNCombinations('10', '15'),
-      ...toBNCombinations('-10', '15'),
-      ...toBNCombinations('-15', '-10'),
+      ...toDecimalCombinations('10', '15'),
+      ...toDecimalCombinations('-10', '15'),
+      ...toDecimalCombinations('-15', '-10'),
 
-      ...toBNCombinations('123456789123', '123456789123456789'),
-      ...toBNCombinations('-123456789123', '123456789123456789'),
-      ...toBNCombinations('-123456789123456789', '-123456789123'),
+      ...toDecimalCombinations('123456789123', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123456789', '-123456789123'),
     ];
 
     const notBelowTestCases = [
-      ...toBNCombinations('15', '10'),
-      ...toBNCombinations('15', '-10'),
-      ...toBNCombinations('-10', '-15'),
-      ...toBNCombinations('15', '15'),
-      ...toBNCombinations('-15', '-15'),
+      ...toDecimalCombinations('15', '10'),
+      ...toDecimalCombinations('15', '-10'),
+      ...toDecimalCombinations('-10', '-15'),
+      ...toDecimalCombinations('15', '15'),
+      ...toDecimalCombinations('-15', '-15'),
 
-      ...toBNCombinations('123456789123456789', '123456789123'),
-      ...toBNCombinations('123456789123456789', '-123456789123'),
-      ...toBNCombinations('-123456789123', '-123456789123456789'),
-      ...toBNCombinations('123456789123456789', '123456789123456789'),
-      ...toBNCombinations('-123456789123456789', '-123456789123456789'),
+      ...toDecimalCombinations('123456789123456789', '123456789123'),
+      ...toDecimalCombinations('123456789123456789', '-123456789123'),
+      ...toDecimalCombinations('-123456789123', '-123456789123456789'),
+      ...toDecimalCombinations('123456789123456789', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123456789', '-123456789123456789'),
     ];
 
     it('asserts belowness', function () {
@@ -292,41 +292,41 @@ describe('chai-bn', function () {
   describe('most/lte', function () {
     const [tester, notTester] = testerGenerator(['lte']);
     const atMostTestCases = [
-      ...toBNCombinations('10', '15'),
-      ...toBNCombinations('-10', '15'),
-      ...toBNCombinations('-15', '-10'),
-      ...toBNCombinations('15', '15'),
-      ...toBNCombinations('-15', '-15'),
+      ...toDecimalCombinations('10', '15'),
+      ...toDecimalCombinations('-10', '15'),
+      ...toDecimalCombinations('-15', '-10'),
+      ...toDecimalCombinations('15', '15'),
+      ...toDecimalCombinations('-15', '-15'),
 
-      ...toBNCombinations('123456789123', '123456789123456789'),
-      ...toBNCombinations('-123456789123', '123456789123456789'),
-      ...toBNCombinations('-123456789123456789', '-123456789123'),
-      ...toBNCombinations('123456789123456789', '123456789123456789'),
-      ...toBNCombinations('-123456789123456789', '-123456789123456789'),
+      ...toDecimalCombinations('123456789123', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123456789', '-123456789123'),
+      ...toDecimalCombinations('123456789123456789', '123456789123456789'),
+      ...toDecimalCombinations('-123456789123456789', '-123456789123456789'),
     ];
     const notAtMostTestCases = [
-      ...toBNCombinations('15', '10'),
-      ...toBNCombinations('15', '-10'),
-      ...toBNCombinations('-10', '-15'),
+      ...toDecimalCombinations('15', '10'),
+      ...toDecimalCombinations('15', '-10'),
+      ...toDecimalCombinations('-10', '-15'),
 
-      ...toBNCombinations('123456789123456789', '123456789123'),
-      ...toBNCombinations('123456789123456789', '-123456789123'),
-      ...toBNCombinations('-123456789123', '-123456789123456789'),
+      ...toDecimalCombinations('123456789123456789', '123456789123'),
+      ...toDecimalCombinations('123456789123456789', '-123456789123'),
+      ...toDecimalCombinations('-123456789123', '-123456789123456789'),
     ];
 
     it('asserts at most', function () {
       atMostTestCases.forEach(([a, b]) => {
         tester(a, b);
-        a.should.be.a.bignumber.that.is.at.most(b);
-        expect(a).to.be.a.bignumber.that.is.at.most(b);
+        a.should.be.a.decimal.that.is.at.most(b);
+        expect(a).to.be.a.decimal.that.is.at.most(b);
       });
     });
 
     it('asserts not at most', function () {
       notAtMostTestCases.forEach(([a, b]) => {
         notTester(a, b);
-        a.should.not.be.a.bignumber.at.most(b);
-        expect(a).to.not.be.a.bignumber.at.most(b);
+        a.should.not.be.a.decimal.at.most(b);
+        expect(a).to.not.be.a.decimal.at.most(b);
       });
     });
 
@@ -334,8 +334,8 @@ describe('chai-bn', function () {
       notAtMostTestCases.forEach(([a, b]) => {
         (() => tester(a, b)).should.throw();
         (() => tester(a, b, customMessage)).should.throw(customMessageRegex);
-        (() => a.should.be.a.bignumber.at.most(b, customMessage)).should.throw(customMessageRegex);
-        (() => expect(a).to.be.a.bignumber.at.most(b, customMessage)).should.throw(customMessageRegex);
+        (() => a.should.be.a.decimal.at.most(b, customMessage)).should.throw(customMessageRegex);
+        (() => expect(a).to.be.a.decimal.at.most(b, customMessage)).should.throw(customMessageRegex);
       });
     });
 
@@ -343,8 +343,8 @@ describe('chai-bn', function () {
       atMostTestCases.forEach(([a, b]) => {
         (() => notTester(a, b)).should.throw();
         (() => notTester(a, b, customMessage)).should.throw(customMessageRegex);
-        (() => a.should.not.be.a.bignumber.at.most(b, customMessage)).should.throw(customMessageRegex);
-        (() => expect(a).to.not.be.a.bignumber.at.most(b, customMessage)).should.throw(customMessageRegex);
+        (() => a.should.not.be.a.decimal.at.most(b, customMessage)).should.throw(customMessageRegex);
+        (() => expect(a).to.not.be.a.decimal.at.most(b, customMessage)).should.throw(customMessageRegex);
       });
     });
 
@@ -353,41 +353,41 @@ describe('chai-bn', function () {
 
   describe('closeTo', function () {
     const tester = function (a, b, delta, customMessage) {
-      a.should.be.a.bignumber.closeTo(b, delta, customMessage);
-      expect(a).to.be.a.bignumber.closeTo(b, delta, customMessage);
+      a.should.be.a.decimal.closeTo(b, delta, customMessage);
+      expect(a).to.be.a.decimal.closeTo(b, delta, customMessage);
     };
 
     const notTester = function (a, b, delta, customMessage) {
-      a.should.be.a.bignumber.not.closeTo(b, delta, customMessage);
-      expect(a).to.be.a.bignumber.not.closeTo(b, delta, customMessage);
+      a.should.be.a.decimal.not.closeTo(b, delta, customMessage);
+      expect(a).to.be.a.decimal.not.closeTo(b, delta, customMessage);
     };
     const closeTestCases = [
-      [new BN('15'), '15', '0'],
-      [new BN('15'), '10', '5'],
-      [new BN('15'), '20', '5'],
-      [new BN('-15'), '-15', '0'],
-      [new BN('-15'), '-10', '5'],
-      [new BN('-15'), '-20', '5'],
-      [new BN('123456789123456789'), '123456789123456789', '0'],
-      [new BN('123456789123456789'), '123456789123456780', '9'],
-      [new BN('123456789123456789'), '123456789123456798', '9'],
-      [new BN('-123456789123456789'), '-123456789123456789', '0'],
-      [new BN('-123456789123456789'), '-123456789123456780', '9'],
-      [new BN('-123456789123456789'), '-123456789123456798', '9'],
+      [new Decimal('15'), '15', '0'],
+      [new Decimal('15'), '10', '5'],
+      [new Decimal('15'), '20', '5'],
+      [new Decimal('-15'), '-15', '0'],
+      [new Decimal('-15'), '-10', '5'],
+      [new Decimal('-15'), '-20', '5'],
+      [new Decimal('123456789123456789'), '123456789123456789', '0'],
+      [new Decimal('123456789123456789'), '123456789123456780', '9'],
+      [new Decimal('123456789123456789'), '123456789123456798', '9'],
+      [new Decimal('-123456789123456789'), '-123456789123456789', '0'],
+      [new Decimal('-123456789123456789'), '-123456789123456780', '9'],
+      [new Decimal('-123456789123456789'), '-123456789123456798', '9'],
     ];
     const notCloseTestCases = [
-      [new BN('15'), '14', '0'],
-      [new BN('15'), '9', '5'],
-      [new BN('15'), '21', '5'],
-      [new BN('-15'), '-16', '0'],
-      [new BN('-15'), '-9', '5'],
-      [new BN('-15'), '-21', '5'],
-      [new BN('123456789123456789'), '123456789123456788', '0'],
-      [new BN('123456789123456789'), '123456789123456779', '9'],
-      [new BN('123456789123456789'), '123456789123456799', '9'],
-      [new BN('-123456789123456789'), '-123456789123456788', '0'],
-      [new BN('-123456789123456789'), '-123456789123456779', '9'],
-      [new BN('-123456789123456789'), '-123456789123456799', '9'],
+      [new Decimal('15'), '14', '0'],
+      [new Decimal('15'), '9', '5'],
+      [new Decimal('15'), '21', '5'],
+      [new Decimal('-15'), '-16', '0'],
+      [new Decimal('-15'), '-9', '5'],
+      [new Decimal('-15'), '-21', '5'],
+      [new Decimal('123456789123456789'), '123456789123456788', '0'],
+      [new Decimal('123456789123456789'), '123456789123456779', '9'],
+      [new Decimal('123456789123456789'), '123456789123456799', '9'],
+      [new Decimal('-123456789123456789'), '-123456789123456788', '0'],
+      [new Decimal('-123456789123456789'), '-123456789123456779', '9'],
+      [new Decimal('-123456789123456789'), '-123456789123456799', '9'],
     ];
 
     it('asserts closeness', function () {
@@ -421,19 +421,19 @@ describe('chai-bn', function () {
 
   describe('negative', function () {
     const tester = function (a) {
-      a.should.be.a.bignumber.that.is.negative;
-      expect(a).to.be.a.bignumber.that.is.negative;
+      a.should.be.a.decimal.that.is.negative;
+      expect(a).to.be.a.decimal.that.is.negative;
     };
 
     const notTester = function (a) {
-      a.should.not.be.a.bignumber.that.is.negative;
-      expect(a).to.not.be.a.bignumber.that.is.negative;
+      a.should.not.be.a.decimal.that.is.negative;
+      expect(a).to.not.be.a.decimal.that.is.negative;
     };
 
     it('asserts negativity', function () {
       const testCases = [
-        new BN('-1'),
-        new BN('-1234856789123456789'),
+        new Decimal('-1'),
+        new Decimal('-1234856789123456789'),
       ];
 
       testCases.forEach((a) => {
@@ -443,9 +443,9 @@ describe('chai-bn', function () {
 
     it('asserts unnegativity', function () {
       const testCases = [
-        new BN('0'),
-        new BN('1'),
-        new BN('1234856789123456789'),
+        new Decimal('0'),
+        new Decimal('1'),
+        new Decimal('1234856789123456789'),
       ];
 
       testCases.forEach((a) => {
@@ -453,7 +453,7 @@ describe('chai-bn', function () {
       });
     });
 
-    it('fails when argument is not BN or string', function () {
+    it('fails when argument is not Decimal or string', function () {
       const testCases = [
         -5,
         0,
@@ -469,18 +469,18 @@ describe('chai-bn', function () {
 
   describe('zero', function () {
     const tester = function (a) {
-      a.should.be.a.bignumber.that.is.zero;
-      expect(a).to.be.a.bignumber.that.is.zero;
+      a.should.be.a.decimal.that.is.zero;
+      expect(a).to.be.a.decimal.that.is.zero;
     };
 
     const notTester = function (a) {
-      a.should.not.be.a.bignumber.that.is.zero;
-      expect(a).to.not.be.a.bignumber.that.is.zero;
+      a.should.not.be.a.decimal.that.is.zero;
+      expect(a).to.not.be.a.decimal.that.is.zero;
     };
 
     it('asserts zeroness', function () {
       const testCases = [
-        new BN('0'),
+        new Decimal('0'),
       ];
 
       testCases.forEach((a) => {
@@ -490,10 +490,10 @@ describe('chai-bn', function () {
 
     it('asserts unzeroness', function () {
       const testCases = [
-        new BN('1'),
-        new BN('-1'),
-        new BN('123456789123456789'),
-        new BN('-123456789123456789'),
+        new Decimal('1'),
+        new Decimal('-1'),
+        new Decimal('123456789123456789'),
+        new Decimal('-123456789123456789'),
       ];
 
       testCases.forEach((a) => {
@@ -501,7 +501,7 @@ describe('chai-bn', function () {
       });
     });
 
-    it('fails when argument is not BN or string', function () {
+    it('fails when argument is not Decimal or string', function () {
       const testCases = [
         -5,
         0,

@@ -1,26 +1,27 @@
 {
-  "name": "chai-bn",
-  "version": "0.3.0",
-  "description": "Chai assertions for comparing arbitrary-precision integers using the bignumber.js library",
-  "main": "chai-bn.js",
-  "types": "chai-bn.d.ts",
+  "name": "chai-decimaljs",
+  "version": "0.0.1",
+  "description": "Chai assertions for comparing arbitrary-precision decimals using the decimal.js library",
+  "main": "chai-decimal.js",
+  "types": "chai-decimal.d.ts",
   "scripts": {
     "lint": "eslint .",
     "test": "mocha test/*.js"
   },
   "devDependencies": {
-    "bn.js": "^5.2.0",
+    "decimal.js": "^10.3.1",
     "chai": "^4.3.4",
     "eslint": "^7.31.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
-    "mocha": "^9.0.2"
+    "mocha": "^9.0.2",
+    "@types/chai": "^4.3.0"
   },
-  "author": "Nicolas Venturo <nicolas.venturo@gmail.com>",
+  "author": "Hubble Protocol Dev Team <dev@hubbleprotocol.io>",
   "license": "MIT",
-  "homepage": "https://github.com/ZeppelinSolutions/chai-bn#readme",
+  "homepage": "https://github.com/hubbleprotocol/chai-decimaljs",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ZeppelinSolutions/chai-bn"
+    "url": "git://github.com/hubbleprotocol/chai-decimaljs"
   },
   "keywords": [
     "chai",
@@ -33,17 +34,18 @@
     "big",
     "number",
     "decimal",
+    "decimal.js",
     "float",
     "bignumber",
     "bn"
   ],
   "files": [
-    "chai-bn.js",
-    "chai-bn.d.ts"
+    "chai-decimal.js",
+    "chai-decimal.d.ts"
   ],
   "dependencies": {},
   "peerDependencies": {
-    "bn.js": "^5.0.0",
+    "decimal.js": "^10.0.0",
     "chai": "^4.0.0"
   }
 }

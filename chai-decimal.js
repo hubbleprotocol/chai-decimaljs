@@ -1,42 +1,42 @@
-module.exports = function (BN) {
-  const isEqualTo = BN.prototype.eq;
-  const isGreaterThan = BN.prototype.gt;
-  const isGreaterThanOrEqualTo = BN.prototype.gte;
-  const isLessThan = BN.prototype.lt;
-  const isLessThanOrEqualTo = BN.prototype.lte;
-  const isNegative = BN.prototype.isNeg;
-  const isZero = BN.prototype.isZero;
+module.exports = function (Decimal) {
+  const isEqualTo = Decimal.prototype.eq;
+  const isGreaterThan = Decimal.prototype.gt;
+  const isGreaterThanOrEqualTo = Decimal.prototype.gte;
+  const isLessThan = Decimal.prototype.lt;
+  const isLessThanOrEqualTo = Decimal.prototype.lte;
+  const isNegative = Decimal.prototype.isNeg;
+  const isZero = Decimal.prototype.isZero;
 
   return function (chai, utils) {
     const flag = utils.flag;
-    // The 'bignumber' property sets the 'bignumber' flag, enabling the custom overrides
-    chai.Assertion.addProperty('bignumber', function () {
-      utils.flag(this, 'bignumber', true);
+    // The 'decimal' property sets the 'decimal' flag, enabling the custom overrides
+    chai.Assertion.addProperty('decimal', function () {
+      utils.flag(this, 'decimal', true);
     });
 
-    // BN objects created using different (compatible) instances of BN can be used via BN.isBN()
-    const isBN = function (object) {
-      return object instanceof BN || BN.isBN(object);
+    // BN objects created using different (compatible) instances of Decimal can be used via Decimal.isDecimal()
+    const isDecimal = function (object) {
+      return object instanceof Decimal || Decimal.isDecimal(object);
     };
 
     const convert = function (value) {
-      if (isBN(value)) {
+      if (isDecimal(value)) {
         return value;
       } else if (typeof value === 'string') {
-        return new BN(value);
-      // BN also supports conversion from e.g. JavaScript numbers, but only for small values. We disable that entirely
+        return new Decimal(value);
+      // decimal.js also supports conversion from e.g. JavaScript numbers. We disable that entirely
       } else {
         new chai.Assertion(value).assert(false,
-          'expected #{act} to be an instance of BN or string');
+          'expected #{act} to be an instance of Decimal or string');
       }
     };
 
     // Overwrites the assertion performed by multiple methods (which should be aliases) with a new function. Prior to
-    // calling said function, we assert that the actual value is a BN, and attempt to convert all other arguments to BN.
+    // calling said function, we assert that the actual value is a Decimal, and attempt to convert all other arguments to Decimals.
     const overwriteMethods = function (messageIndex, methodNames, newAssertion) {
       function overwriteMethod (originalAssertion) {
         return function () {
-          if (utils.flag(this, 'bignumber')) {
+          if (utils.flag(this, 'decimal')) {
             const actual = convert(this._obj);
             const args = [actual].concat(
               [].slice
@@ -57,11 +57,11 @@ module.exports = function (BN) {
     };
 
     // Overwrites the assertion performed by multiple properties (which should be aliases) with a new function. Prior to
-    // calling said function, we assert that the actual value is a BN.
+    // calling said function, we assert that the actual value is a Decimal.
     const overwriteProperties = function (propertyNames, newAssertion) {
       function overwriteProperty (originalAssertion) {
         return function () {
-          if (utils.flag(this, 'bignumber')) {
+          if (utils.flag(this, 'decimal')) {
             const actual = convert(this._obj);
 
             newAssertion.apply(this, [actual]);
@@ -76,7 +76,7 @@ module.exports = function (BN) {
       );
     };
 
-    // BN.eq
+    // Decimal.eq
     overwriteMethods(1, ['equal', 'equals', 'eq'], function (actual, expected, msg) {
       if (msg) {
         flag(this, 'message', msg);
@@ -90,7 +90,7 @@ module.exports = function (BN) {
       );
     });
 
-    // BN.gt
+    // Decimal.gt
     overwriteMethods(1, ['above', 'gt', 'greaterThan'], function (actual, expected, msg) {
       if (msg) {
         flag(this, 'message', msg);
@@ -104,7 +104,7 @@ module.exports = function (BN) {
       );
     });
 
-    // BN.gte
+    // Decimal.gte
     overwriteMethods(1, ['least', 'gte'], function (actual, expected, msg) {
       if (msg) {
         flag(this, 'message', msg);
@@ -118,7 +118,7 @@ module.exports = function (BN) {
       );
     });
 
-    // BN.lt
+    // Decimal.lt
     overwriteMethods(1, ['below', 'lt', 'lessThan'], function (actual, expected, msg) {
       if (msg) {
         flag(this, 'message', msg);
@@ -132,7 +132,7 @@ module.exports = function (BN) {
       );
     });
 
-    // BN.lte
+    // Decimal.lte
     overwriteMethods(1, ['most', 'lte'], function (actual, expected, msg) {
       if (msg) {
         flag(this, 'message', msg);
@@ -160,7 +160,7 @@ module.exports = function (BN) {
       );
     });
 
-    // BN.isNeg
+    // Decimal.isNeg
     overwriteProperties(['negative'], function (value) {
       this.assert(
         isNegative.bind(value)(),
@@ -170,7 +170,7 @@ module.exports = function (BN) {
       );
     });
 
-    // BN.isZero
+    // Decimal.isZero
     overwriteProperties(['zero'], function (value) {
       this.assert(
         isZero.bind(value)(),
